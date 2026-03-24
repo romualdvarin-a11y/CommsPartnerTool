@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journey action plan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bk:#111;--wh:#FFF;--g25:#FAFAFA;--g50:#F5F5F5;--g100:#EBEBEB;--g200:#E0E0E0;
+  --g300:#CCC;--g400:#B0B0B0;--g500:#8A8A8A;--g600:#636363;--g700:#3D3D3D;
+  --blue:#3B82F6;--blue-l:#DBEAFE;--blue-d:#1E40AF;
+  --green:#10B981;--green-l:#D1FAE5;--green-d:#065F46;
+  --orange:#F59E0B;--orange-l:#FEF3C7;--orange-d:#92400E;
+  --red:#EF4444;--red-l:#FEE2E2;--red-d:#991B1B;
+  --purple:#8B5CF6;--purple-l:#EDE9FE;--purple-d:#5B21B6;
+  --pink:#EC4899;--pink-l:#FCE7F3;--pink-d:#9D174D;
+  --teal:#14B8A6;--teal-l:#CCFBF1;--teal-d:#115E59;
+  --indigo:#6366F1;--indigo-l:#E0E7FF;--indigo-d:#3730A3;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --r:10px;--sh:0 4px 12px rgba(0,0,0,.08);--sh-lg:0 12px 40px rgba(0,0,0,.12);
+}
+body{font-family:var(--font);background:var(--g25);color:var(--bk);font-size:14px;font-weight:500;line-height:1.5}
+button{font-family:var(--font);cursor:pointer;font-weight:500;font-size:13px;border:none}
+input,select,textarea{font-family:var(--font);font-size:14px;font-weight:500}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .2s ease-out}
+.tip{display:flex;gap:8px;padding:10px 14px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;font-size:12px;color:#0369A1;line-height:1.5;margin-bottom:16px;align-items:flex-start}
+.tip b{font-weight:700}
+.tip .ico{flex-shrink:0;font-size:14px;margin-top:1px}
+.warn{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
+@media print{body{background:white!important;font-size:11px!important}
+.no-print{display:none!important}
+.print-only{display:block!important}
+}
+.print-only{display:none}
+#pdf-capture{background:white}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useCallback,useMemo,useEffect,useRef}=React;
+
+// ─── Constants ───
+const GOAL_TYPES=['acquisition','activation','adoption','expansion','retention'];
+const PERSONA_TYPES=['prospect','existing_client','both'];
+const SEGMENTS=['Solo','Micro','Small','Medium','Enterprise'];
+const MARKETS=['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT','🇬🇧 UK','🇺🇸 US','Global'];
+const JOURNEY_STATUSES=['draft','planned','live','completed'];
+const TP_STATUSES=['not_started','planned','in_progress','done','blocker'];
+const VALIDATED=['validated','tbd','discarded'];
+const AUDIENCES=['prospect','client','internal'];
+const DEFAULT_STAGES=[
+  {stage_name:'Awareness',stage_goal:'Build reach & recognition',position:1},
+  {stage_name:'Consideration',stage_goal:'Drive traffic & interest',position:2},
+  {stage_name:'Decision / Conversion',stage_goal:'Convert intent to action',position:3},
+  {stage_name:'Activation',stage_goal:'First key action completed',position:4},
+  {stage_name:'Adoption',stage_goal:'Repeated use established',position:5},
+  {stage_name:'Expansion',stage_goal:'Upsell / cross-sell',position:6},
+  {stage_name:'Retention',stage_goal:'Reduce churn, re-engage',position:7},
+];
+const CHANNELS=['CRM / Email','Push notification','In-app (Braze)','Website','SEO','Paid Ads','Video','Social (organic)','Event','Enablement (internal)','Community','Sales','Customer Support','Affiliate / Comparator','PR','Partner','In-product (UX step)'];
+const TP_TYPES_GTM=['Email (outbound)','Push notification','In-app message','SMS','Landing page','Paid ad','Social post (organic)','SEO / blog article','Community post','PR / media','Webinar / event','Affiliate / comparison site','Partner comms'];
+const TP_TYPES_UX=['Onboarding screen','Feature discovery (tooltip, spotlight)','Empty state prompt','In-product upsell','Dashboard widget','In-app notification (bell)','Settings / activation gate','Feature confirmation screen','Eligibility check flow','Success state'];
+const TP_TYPES_INT=['Sales/CS training','Enablement deck','Internal FAQ / playbook','Support macro'];
+const CH_COLORS={
+  'CRM / Email':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Push notification':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
+  'In-app (Braze)':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},'Website':{bg:'#D1FAE5',t:'#065F46',d:'#10B981'},
+  'SEO':{bg:'#CCFBF1',t:'#115E59',d:'#14B8A6'},'Paid Ads':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
+  'Video':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Social (organic)':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},
+  'Event':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Enablement (internal)':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},
+  'Community':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Sales':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},
+  'Customer Support':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},'Affiliate / Comparator':{bg:'#E0E7FF',t:'#3730A3',d:'#6366F1'},
+  'PR':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Partner':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},
+  'In-product (UX step)':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},
+  // Notion aliases
+  'In-product':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},'Website/SEO':{bg:'#D1FAE5',t:'#065F46',d:'#10B981'},
+  'CRM':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Paid ads':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
+  'Sales/CSD/BPO':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},'Social':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},
+  'Product':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},
+};
+const ST={
+  not_started:{bg:'#F5F5F5',t:'#8A8A8A',l:'Not started'},planned:{bg:'#DBEAFE',t:'#1E40AF',l:'Planned'},
+  in_progress:{bg:'#FEF3C7',t:'#92400E',l:'In progress'},done:{bg:'#D1FAE5',t:'#065F46',l:'Done'},
+  blocker:{bg:'#FEE2E2',t:'#991B1B',l:'Blocker'},
+  // Notion aliases
+  'To do':{bg:'#F5F5F5',t:'#8A8A8A',l:'To do'},'In progress':{bg:'#FEF3C7',t:'#92400E',l:'In progress'},
+  'Done':{bg:'#D1FAE5',t:'#065F46',l:'Done'},
+};
+const STAGE_C=['#3B82F6','#8B5CF6','#EC4899','#F59E0B','#10B981','#14B8A6','#6366F1','#EF4444','#F97316','#06B6D4'];
+
+// ─── Helpers ───
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const fmtD=(d)=>d?new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+const clone=(o)=>JSON.parse(JSON.stringify(o));
+
+// ─── Notion field mapping ───
+const NOTION_CHANNEL_MAP={
+  'In-product':'In-product (UX step)','Website/SEO':'Website','Paid ads':'Paid Ads',
+  'CRM':'CRM / Email','Sales/CSD/BPO':'Enablement (internal)','Community':'Community',
+  'Social':'Social (organic)','Product':'In-product (UX step)',
+};
+const NOTION_STATUS_MAP={'To do':'not_started','In progress':'in_progress','Done':'done'};
+
+function parseNotionJSON(raw){
+  try{
+    const rows=typeof raw==='string'?JSON.parse(raw):raw;
+    if(!Array.isArray(rows)) throw new Error('Expected an array of rows');
+    // Detect Notion format: rows have "Touchpoint","Phase","Channel" etc.
+    const isNotion=rows[0]&&('Touchpoint' in rows[0]||'Phase' in rows[0]||'Channel' in rows[0]);
+    if(!isNotion) throw new Error('NOT_NOTION');
+    // Extract unique phases as stages
+    const phaseSet=new Set();
+    rows.forEach(r=>{if(r.Phase)phaseSet.add(r.Phase)});
+    const phaseOrder=['Awareness','Consideration','Acquisition','Decision','Activation','Card creation','In-app verification','In-app Discovery','Adoption','Ongoing usage','Payout & statement','Expansion','Upsell','Support','Retention','Tracking'];
+    const phases=[...phaseSet].sort((a,b)=>{
+      const ia=phaseOrder.findIndex(p=>a.toLowerCase().includes(p.toLowerCase()));
+      const ib=phaseOrder.findIndex(p=>b.toLowerCase().includes(p.toLowerCase()));
+      return (ia===-1?99:ia)-(ib===-1?99:ib);
+    });
+    const stageMap={};
+    const stages=phases.map((p,i)=>{const id=uid();stageMap[p]=id;return{id,stage_name:p,stage_goal:'',position:i+1}});
+    const touchpoints=rows.map(r=>{
+      let channels=[];
+      try{channels=typeof r.Channel==='string'&&r.Channel.startsWith('[')?JSON.parse(r.Channel):[r.Channel]}catch(e){channels=[r.Channel]}
+      const ch=channels[0]||'';
+      const mappedCh=NOTION_CHANNEL_MAP[ch]||ch;
+      let assets=[];
+      try{assets=typeof r['Asset type']==='string'&&r['Asset type']?.startsWith('[')?JSON.parse(r['Asset type']):[r['Asset type']]}catch(e){}
+      let owners=[];
+      try{owners=typeof r.Owner==='string'&&r.Owner.startsWith('[')?JSON.parse(r.Owner):[r.Owner]}catch(e){owners=[r.Owner]}
+      const ownerStr=owners.filter(Boolean).map(o=>typeof o==='string'&&o.startsWith('user://')?o.replace('user://','').slice(0,8)+'…':o).join(', ')||'';
+      return{
+        id:uid(),touchpoint_name:r.Touchpoint||r.Name||r.title||'Untitled',
+        stage_id:stageMap[r.Phase]||stages[0]?.id||'',
+        channel:mappedCh,touchpoint_type:assets.filter(Boolean).join(', ')||'',
+        audience:['client'],market:['Global'],owner:ownerStr,
+        team:[],status:NOTION_STATUS_MAP[r.Status]||'not_started',validated:'tbd',
+        go_live_date:r['date:Target date:start']||'',
+        end_date:r['date:Target date:end']||'',
+        message_angle:r['Key message']||'',
+        kick_off_date:'',eta_deliverables:'',
+        asset_link:r.url||'',cta_label:'',variant:'',
+        market_override:false,market_override_note:'',
+        _objective:r.Objective||'',_deliverables:r['Deliverables - actions']||'',
+      };
+    });
+    return{stages,touchpoints,source:'notion'};
+  }catch(e){
+    if(e.message==='NOT_NOTION') throw e;
+    throw new Error('Could not parse data: '+e.message);
+  }
+}
+
+function parseGenericJSON(raw){
+  const data=typeof raw==='string'?JSON.parse(raw):raw;
+  if(data.stages&&data.touchpoints) return{stages:data.stages,touchpoints:data.touchpoints,source:'generic'};
+  throw new Error('Expected {stages:[...], touchpoints:[...]} format');
+}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  if(lines.length<2)throw new Error('CSV needs a header + at least 1 row');
+  const headers=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  const rows=lines.slice(1).map(line=>{
+    const vals=line.match(/("(?:[^"]|"")*"|[^,]*)/g)||[];
+    const obj={};
+    headers.forEach((h,i)=>{obj[h]=(vals[i]||'').trim().replace(/^"|"$/g,'').replace(/""/g,'"')});
+    return obj;
+  });
+  // Check if it looks like Notion export
+  if(headers.includes('Touchpoint')&&headers.includes('Phase')){
+    return parseNotionJSON(rows);
+  }
+  // Generic CSV: expect Name/Touchpoint, Stage/Phase, Channel, Status columns
+  const nameCol=headers.find(h=>/^(touchpoint|name|title)/i.test(h));
+  const stageCol=headers.find(h=>/^(stage|phase)/i.test(h));
+  const channelCol=headers.find(h=>/^channel/i.test(h));
+  const statusCol=headers.find(h=>/^status/i.test(h));
+  if(!nameCol)throw new Error('CSV must have a "Touchpoint" or "Name" column');
+  const phaseSet=new Set();
+  rows.forEach(r=>{const s=r[stageCol];if(s)phaseSet.add(s)});
+  const stageMap={};
+  const stages=[...phaseSet].map((p,i)=>{const id=uid();stageMap[p]=id;return{id,stage_name:p,stage_goal:'',position:i+1}});
+  if(stages.length===0){const id=uid();stages.push({id,stage_name:'Uncategorized',stage_goal:'',position:1});stageMap['']='';stageMap[undefined]=id}
+  const touchpoints=rows.map(r=>({
+    id:uid(),touchpoint_name:r[nameCol]||'',stage_id:stageMap[r[stageCol]]||stages[0].id,
+    channel:r[channelCol]||'',touchpoint_type:'',audience:['client'],market:['Global'],
+    owner:r[headers.find(h=>/owner/i.test(h))]||'',team:[],
+    status:NOTION_STATUS_MAP[r[statusCol]]||r[statusCol]||'not_started',validated:'tbd',
+    go_live_date:r[headers.find(h=>/date|go.?live/i.test(h))]||'',end_date:'',
+    message_angle:r[headers.find(h=>/message|angle/i.test(h))]||'',
+    kick_off_date:'',eta_deliverables:'',asset_link:'',cta_label:'',variant:'',
+    market_override:false,market_override_note:'',
+  }));
+  return{stages,touchpoints,source:'csv'};
+}
+
+// ─── Seed data ───
+function createLibrary(){
+  const j1Id='lib_cashback',j2Id='lib_onboarding',j3Id='lib_winback';
+  const s1=[
+    {id:'s1_1',journey_id:j1Id,stage_name:'Awareness',stage_goal:'Post-launch organic reach',position:1},
+    {id:'s1_2',journey_id:j1Id,stage_name:'Acquisition',stage_goal:'Drive traffic & conversions',position:2},
+    {id:'s1_3',journey_id:j1Id,stage_name:'In-app Discovery',stage_goal:'Educate in-product',position:3},
+    {id:'s1_4',journey_id:j1Id,stage_name:'Support',stage_goal:'Help Center & enablement',position:4},
+    {id:'s1_5',journey_id:j1Id,stage_name:'Upsell',stage_goal:'Card upgrade & retention',position:5},
+  ];
+  const t1=[
+    {id:uid(),journey_id:j1Id,stage_id:'s1_1',touchpoint_name:'Community post(s)',channel:'Community',touchpoint_type:'Post',audience:['client'],market:['Global'],owner:'Community manager',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Reminder + how it works'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_1',touchpoint_name:'Social post(s)',channel:'Social (organic)',touchpoint_type:'Post',audience:['prospect','client'],market:['Global'],owner:'Social team',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Cashback teaser, launch, deep dive'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'New cashback landing page',channel:'Website',touchpoint_type:'LP',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-06',end_date:'2026-05-06',message_angle:'Earn cashback on eligible card spend'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Static ad assets',channel:'Paid Ads',touchpoint_type:'Ad static',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback on eligible spend'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Card animations',channel:'Paid Ads',touchpoint_type:'Ad animation',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Earn cashback with your card'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Retargeting ads (cashback)',channel:'Paid Ads',touchpoint_type:'Paid ad',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is available with your card'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Lead nurture email(s)',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['prospect'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Earn cashback on eligible spend'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Pricing page update',channel:'Website',touchpoint_type:'Pricing line',audience:['prospect'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback rate and cap depend on card level'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Card page callouts & banners',channel:'Website',touchpoint_type:'Card page module, Banners',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback visible on card pages'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Comparator pages (SEO)',channel:'SEO',touchpoint_type:'UI screen',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Clear, comparable cashback story'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_2',touchpoint_name:'Comparator pages update',channel:'SEO',touchpoint_type:'Comparator line',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Updated comparator positioning'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_3',touchpoint_name:'In-app discovery message (Braze)',channel:'In-app (Braze)',touchpoint_type:'In-app message',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is now active'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_3',touchpoint_name:'In-product education touchpoint',channel:'In-product (UX step)',touchpoint_type:'Feature discovery',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Explain cashback in-product'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_3',touchpoint_name:'Cashback details page (in-app)',channel:'In-product (UX step)',touchpoint_type:'Feature confirmation screen',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Rate, cap, timing, exclusions'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_4',touchpoint_name:'Help Center update (FAQ)',channel:'Enablement (internal)',touchpoint_type:'Enablement doc',audience:['client','internal'],market:['Global'],owner:'CS team',status:'done',go_live_date:'2026-04-24',end_date:'2026-05-06',message_angle:'Cashback rules, payout, exclusions'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_4',touchpoint_name:'Sales/CSD training session',channel:'Enablement (internal)',touchpoint_type:'Sales/CS training',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-29',end_date:'2026-05-06',message_angle:'Cashback as acquisition lever'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_5',touchpoint_name:'CRM upsell plan: one-shots + lifecycle',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['client'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Target cohorts with clear cashback rules'},
+    {id:uid(),journey_id:j1Id,stage_id:'s1_5',touchpoint_name:'Measurement & tracking setup',channel:'In-product (UX step)',touchpoint_type:'Dashboard',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'UTMs and events reflect journey'},
+  ];
+  t1.forEach(tp=>{tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note=''});
+  const j1={id:j1Id,journey_name:'Cashback — X/Plus cards — Q2 2026',goal_type:['acquisition','adoption'],persona_type:'both',segment:['Micro','Small','Medium'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL'],status:'completed',start_date:'2026-04-06',end_date:'2026-06-30',owner:'PMM team',messaging_angle:'Your card spend, rewarded — effortless cashback on every transaction',guardrails:'Avoid teasing future rate changes. Cap disclosure required on paid channels.',eligibility_notes:'X and Plus card holders only.',is_template:true,template_category:'Product launch',template_description:'18 touchpoints across 5 stages. Comprehensive feature launch covering paid, organic, CRM, in-product and enablement. Based on a real GTM plan.'};
+
+  const s2=[
+    {id:'s2_1',journey_id:j2Id,stage_name:'Pre-signup',stage_goal:'Intent capture',position:1},
+    {id:'s2_2',journey_id:j2Id,stage_name:'Signup flow',stage_goal:'Reduce drop-off',position:2},
+    {id:'s2_3',journey_id:j2Id,stage_name:'First 24h',stage_goal:'First key action',position:3},
+    {id:'s2_4',journey_id:j2Id,stage_name:'First 7 days',stage_goal:'Establish habits',position:4},
+    {id:'s2_5',journey_id:j2Id,stage_name:'Day 8–30',stage_goal:'Deepen engagement',position:5},
+  ];
+  const t2=[
+    {id:uid(),journey_id:j2Id,stage_id:'s2_1',touchpoint_name:'Retargeting — abandoned signup',channel:'Paid Ads',audience:['prospect'],owner:'Paid team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_1',touchpoint_name:'Pre-signup LP — "What you\'ll need"',channel:'Website',audience:['prospect'],owner:'Website team',status:'done',go_live_date:'2026-01-28'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_2',touchpoint_name:'KYC progress indicator',channel:'In-product (UX step)',audience:['prospect'],owner:'Product team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_2',touchpoint_name:'Email: "Complete your application"',channel:'CRM / Email',audience:['prospect'],owner:'CRM team',status:'done',go_live_date:'2026-02-01',variant:'A: urgency / B: benefit'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_3',touchpoint_name:'Welcome screen + setup checklist',channel:'In-product (UX step)',audience:['client'],owner:'Product team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_3',touchpoint_name:'Welcome email + quick start guide',channel:'CRM / Email',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_3',touchpoint_name:'Push: "Add your first team member"',channel:'Push notification',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_4',touchpoint_name:'Day 3 email: feature highlight',channel:'CRM / Email',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-02-04'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_4',touchpoint_name:'In-app feature discovery tooltips',channel:'In-product (UX step)',audience:['client'],owner:'Product team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_4',touchpoint_name:'CS outreach for high-value signups',channel:'Sales',audience:['client'],owner:'CS team',status:'done',go_live_date:'2026-02-01'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_5',touchpoint_name:'Day 14 email: "How are things going?"',channel:'CRM / Email',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-02-15'},
+    {id:uid(),journey_id:j2Id,stage_id:'s2_5',touchpoint_name:'Empty state prompts on unused features',channel:'In-product (UX step)',audience:['client'],owner:'Product team',status:'done',go_live_date:'2026-02-01'},
+  ];
+  t2.forEach(tp=>{tp.touchpoint_type='';tp.market=['Global'];tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.variant=tp.variant||'';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
+  const j2={id:j2Id,journey_name:'Onboarding revamp — Q1 2026',goal_type:['activation'],persona_type:'prospect',segment:['Solo','Micro','Small','Medium'],markets:['Global'],status:'completed',start_date:'2026-01-15',end_date:'2026-03-31',owner:'Growth team',messaging_angle:'Get started in minutes — your business account, ready when you are',guardrails:'No pressure tactics.',eligibility_notes:'All new signups.',is_template:true,template_category:'Onboarding',template_description:'12 touchpoints across 5 time-based stages. Great template for onboarding or activation journeys.'};
+
+  const s3=[
+    {id:'s3_1',journey_id:j3Id,stage_name:'Early churn signal',stage_goal:'Detect disengagement',position:1},
+    {id:'s3_2',journey_id:j3Id,stage_name:'Re-engagement',stage_goal:'Bring users back',position:2},
+    {id:'s3_3',journey_id:j3Id,stage_name:'Win-back offer',stage_goal:'Convert at-risk',position:3},
+    {id:'s3_4',journey_id:j3Id,stage_name:'Reactivation',stage_goal:'First action after return',position:4},
+  ];
+  const t3=[
+    {id:uid(),journey_id:j3Id,stage_id:'s3_1',touchpoint_name:'Inactivity trigger (14d no login)',channel:'In-product (UX step)',audience:['client'],owner:'Product team',status:'done',go_live_date:'2026-03-01'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_2',touchpoint_name:'Email: "We miss you — here\'s what\'s new"',channel:'CRM / Email',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-03-01'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_2',touchpoint_name:'Push: "Your account is waiting"',channel:'Push notification',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-03-08'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_3',touchpoint_name:'Email: Exclusive offer — 2 months free',channel:'CRM / Email',audience:['client'],owner:'CRM team',status:'done',go_live_date:'2026-03-15',variant:'A: discount / B: feature'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_3',touchpoint_name:'CS personal outreach',channel:'Sales',audience:['client'],owner:'CS team',status:'done',go_live_date:'2026-03-15'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_4',touchpoint_name:'Welcome-back in-app message',channel:'In-app (Braze)',audience:['client'],owner:'PMM',status:'done',go_live_date:'2026-03-15'},
+    {id:uid(),journey_id:j3Id,stage_id:'s3_4',touchpoint_name:'Re-onboarding checklist',channel:'In-product (UX step)',audience:['client'],owner:'Product team',status:'done',go_live_date:'2026-03-15'},
+  ];
+  t3.forEach(tp=>{tp.touchpoint_type='';tp.market=['Global'];tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
+  const j3={id:j3Id,journey_name:'Win-back — inactive users — Q1 2026',goal_type:['retention'],persona_type:'existing_client',segment:['Solo','Micro','Small'],markets:['Global'],status:'completed',start_date:'2026-02-15',end_date:'2026-04-30',owner:'Retention team',messaging_angle:'We\'ve been improving — come see what\'s new',guardrails:'Max 3 touchpoints per user. Respect opt-out.',eligibility_notes:'Users inactive 14+ days.',is_template:true,template_category:'Retention',template_description:'7 touchpoints across 4 stages. Lean anti-churn journey with escalating re-engagement.'};
+
+  // ─── Campaign 4: DDC (Financial Cushioning) — from Notion ───
+  const j4Id='lib_ddc';
+  const s4=[
+    {id:'s4_1',journey_id:j4Id,stage_name:'Pre-launch prep',stage_goal:'Legal, FAQ, enablement',position:1},
+    {id:'s4_2',journey_id:j4Id,stage_name:'Teaser & internal',stage_goal:'Build anticipation internally & externally',position:2},
+    {id:'s4_3',journey_id:j4Id,stage_name:'Launch week',stage_goal:'Big-bang multi-channel launch',position:3},
+    {id:'s4_4',journey_id:j4Id,stage_name:'Amplification',stage_goal:'Paid, CRM, in-app push',position:4},
+    {id:'s4_5',journey_id:j4Id,stage_name:'Lifecycle & optimization',stage_goal:'Lifecycle automations, expansion, feedback',position:5},
+  ];
+  const t4=[
+    // Pre-launch
+    {id:uid(),journey_id:j4Id,stage_id:'s4_1',touchpoint_name:'Dedicated FAQ pages for Help Center',channel:'Customer Support',audience:['client'],owner:'Customer Care',status:'done',go_live_date:'2026-01-06',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_1',touchpoint_name:'Legal & compliance disclaimer check',channel:'Enablement (internal)',audience:['internal'],owner:'Legal',status:'done',go_live_date:'2026-01-09',market:['Global']},
+    // Teaser
+    {id:uid(),journey_id:j4Id,stage_id:'s4_2',touchpoint_name:'Teaser post (Instagram, LinkedIn)',channel:'Social (organic)',audience:['prospect','client'],owner:'Social Media',status:'done',go_live_date:'2026-01-13',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_2',touchpoint_name:'Sales & CSD training — Barcelona team',channel:'Enablement (internal)',audience:['internal'],owner:'Sales',status:'done',go_live_date:'2026-01-16',market:['Global']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_2',touchpoint_name:'Sales & CSD training — Inbound & Accountants',channel:'Enablement (internal)',audience:['internal'],owner:'Sales',status:'done',go_live_date:'2026-01-19',market:['Global']},
+    // Launch week
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'New landing page + page updates',channel:'Website',audience:['prospect','client'],owner:'Website',status:'done',go_live_date:'2026-01-21',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Launch social media post',channel:'Social (organic)',audience:['prospect','client'],owner:'Social Media',status:'done',go_live_date:'2026-01-21',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Press release (Credit Card + Overdraft)',channel:'PR',audience:['prospect'],owner:'PR',status:'done',go_live_date:'2026-01-21',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Community post',channel:'Community',audience:['client'],owner:'Community',status:'done',go_live_date:'2026-01-21',market:['🇫🇷 FR']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Internal comms — Qonto Journal article',channel:'Enablement (internal)',audience:['internal'],owner:'Internal Comms',status:'done',go_live_date:'2026-01-21',market:['Global']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Employee LinkedIn posts for launch',channel:'Social (organic)',audience:['prospect'],owner:'Social Media',status:'done',go_live_date:'2026-01-21',market:['Global']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_3',touchpoint_name:'Launch day presentation',channel:'Enablement (internal)',audience:['internal'],owner:'Internal Comms',status:'done',go_live_date:'2026-01-21',market:['Global']},
+    // Amplification
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'Paid ads (static + video)',channel:'Paid Ads',audience:['prospect','client'],owner:'Paid Acquisition',status:'done',go_live_date:'2026-01-22',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'Braze in-app: launch pop-up on Home',channel:'In-app (Braze)',audience:['client'],owner:'Product',status:'done',go_live_date:'2026-01-23',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'What\'s New page update',channel:'In-product (UX step)',audience:['client'],owner:'PMM',status:'done',go_live_date:'2026-01-26',market:['🇫🇷 FR','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'Braze in-app to higher-limit customers',channel:'In-app (Braze)',audience:['client'],owner:'Product',status:'done',go_live_date:'2026-01-28',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'2 one-shot launch emails',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'done',go_live_date:'2026-01-29',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'Sales & CSD 1-pager',channel:'Enablement (internal)',audience:['internal'],owner:'Sales',status:'done',go_live_date:'2026-02-05',market:['Global']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_4',touchpoint_name:'Follow-up carousel: why a credit card is useful',channel:'Social (organic)',audience:['prospect','client'],owner:'Social Media',status:'done',go_live_date:'2026-02-05',market:['Global']},
+    // Lifecycle & optimization
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'User feedback collection',channel:'Enablement (internal)',audience:['client'],owner:'PMM',status:'done',go_live_date:'2026-02-11',market:['🇫🇷 FR','🇩🇪 DE']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'Push notification D+14',channel:'Push notification',audience:['client'],owner:'CRM',status:'done',go_live_date:'2026-02-12',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇮🇹 IT']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'SEO blog articles (Credit Card + Overdraft)',channel:'SEO',audience:['prospect'],owner:'SEO',status:'done',go_live_date:'2026-02-16',market:['🇫🇷 FR','🇩🇪 DE','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'Braze in-app on Cards page',channel:'In-app (Braze)',audience:['client'],owner:'PMM',status:'done',go_live_date:'2026-02-16',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'Sales expansion: contact feature requestors',channel:'Sales',audience:['client'],owner:'Sales',status:'in_progress',go_live_date:'2026-02-25',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES']},
+    {id:uid(),journey_id:j4Id,stage_id:'s4_5',touchpoint_name:'CRM lifecycle automations',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'in_progress',go_live_date:'2026-03-10',market:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL']},
+  ];
+  t4.forEach(tp=>{tp.touchpoint_type='';tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
+  const j4={id:j4Id,journey_name:'DDC (Financial Cushioning) — Credit Card + Overdraft — Q1 2026',goal_type:['acquisition','adoption','expansion'],persona_type:'existing_client',segment:['Solo','Micro','Small'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT'],status:'completed',start_date:'2026-01-06',end_date:'2026-03-31',owner:'PMM team',messaging_angle:'Pay what matters on time, without sweating your cash flow — financial cushioning from Credit Card + Overdraft',guardrails:'Legal disclaimer required on all credit-related comms. FR: use "carte à débit différé", DE: use "Kreditkarte". Never say "free credit".',eligibility_notes:'Eligible existing customers only — criteria similar to Pay Later.',is_template:true,template_category:'Bundle GTM',template_description:'25 touchpoints across 5 phases. Two-phase bundle GTM combining Credit Card + Overdraft launch with phased rollout across 5 markets. Real Notion data.'};
+
+  // ─── Campaign 5: Close the Gap — from Notion ───
+  const j5Id='lib_closethegap';
+  const s5=[
+    {id:'s5_1',journey_id:j5Id,stage_name:'Awareness',stage_goal:'PR, social, paid — drive narrative reach',position:1},
+    {id:'s5_2',journey_id:j5Id,stage_name:'Consideration & conversion',stage_goal:'SEO, blog, LP, case studies',position:2},
+    {id:'s5_3',journey_id:j5Id,stage_name:'Conversion (CRM & in-app)',stage_goal:'Email, push, in-app — drive trial & usage',position:3},
+    {id:'s5_4',journey_id:j5Id,stage_name:'Loyalty & advocacy',stage_goal:'Community, feedback, expansion content',position:4},
+  ];
+  const t5=[
+    // Awareness
+    {id:uid(),journey_id:j5Id,stage_id:'s5_1',touchpoint_name:'Executive bylined article / op-ed',channel:'PR',audience:['prospect'],owner:'PR',status:'not_started',go_live_date:'2026-04-30',market:['🇫🇷 FR','🇩🇪 DE']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_1',touchpoint_name:'Press release — Payment Links (IT & ES)',channel:'PR',audience:['prospect'],owner:'PR',status:'not_started',go_live_date:'2026-04-30',market:['🇮🇹 IT','🇪🇸 ES']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_1',touchpoint_name:'Topical educational video (SDD)',channel:'Video',audience:['prospect','client'],owner:'Comms Partner',status:'in_progress',go_live_date:'2026-04-30',market:['🇩🇪 DE','🇫🇷 FR','Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_1',touchpoint_name:'LinkedIn post / slide carousel',channel:'Social (organic)',audience:['prospect','client'],owner:'Social Media',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_1',touchpoint_name:'Paid ads (campaign-level)',channel:'Paid Ads',audience:['prospect'],owner:'Paid Acquisition',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    // Consideration
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Landing page: new creation or revamp',channel:'Website',audience:['prospect','client'],owner:'Website + SEO',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'FAQ section updates on LP',channel:'Website',audience:['prospect','client'],owner:'SEO',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'FAQ creation / update (Help Center)',channel:'Customer Support',audience:['client'],owner:'CS',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Blog #1 — "Close the Gap: how to get paid faster"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Blog #2 — "SDD vs. bank transfer"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['🇩🇪 DE','🇫🇷 FR','🇳🇱 NL']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Blog #3 — "Payment Links: let clients choose"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-05-07',market:['🇮🇹 IT','🇪🇸 ES','Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Customer case study — Frédéric (all-in-one flow)',channel:'Website',audience:['prospect'],owner:'PMM',status:'not_started',go_live_date:'2026-04-30',market:['🇫🇷 FR','Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Resource: invoice template / payment terms template',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_2',touchpoint_name:'Resource: SDD mandate template',channel:'SEO',audience:['prospect','client'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    // Conversion CRM & in-app
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Email: one-shot (leads) — acquisition angle',channel:'CRM / Email',audience:['prospect'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Email: one-shot (customers) — "Invoice with us, get paid with us" + promo',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Push notification — AR Add-on promo + Payment Links',channel:'Push notification',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Lifecycle automations — AR → Payment Links / SDD nudges',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Knowledge Hub explainer video',channel:'In-product (UX step)',audience:['client'],owner:'PMM',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_3',touchpoint_name:'Newsletter block — "Close the Gap" feature',channel:'CRM / Email',audience:['client'],owner:'PMM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
+    // Loyalty & advocacy
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Community post — "How do you collect payments?"',channel:'Community',audience:['client'],owner:'Community',status:'not_started',go_live_date:'2026-05-05',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Demo video — "Send invoice → get paid in 3 clicks"',channel:'Community',audience:['client'],owner:'PMM + Community',status:'not_started',go_live_date:'2026-05-05',market:['🇫🇷 FR','Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Blog #4 — "What to do when clients won\'t pay"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-05-30',market:['🇫🇷 FR','🇩🇪 DE']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Email: "When things go sideways" — Debt Collection + Invoice Financing',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-06-01',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Customer survey — adoption feedback',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-06-01',market:['Global']},
+    {id:uid(),journey_id:j5Id,stage_id:'s5_4',touchpoint_name:'Blog #5 — "Invoice financing: close the cash flow gap"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-06-30',market:['Global']},
+  ];
+  t5.forEach(tp=>{tp.touchpoint_type='';tp.team=[];tp.validated=tp.status==='done'?'validated':'tbd';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
+  const j5={id:j5Id,journey_name:'Close the Gap — Get Paid suite — Q2 2026',goal_type:['adoption','acquisition','expansion'],persona_type:'both',segment:['Solo','Micro','Small'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT'],status:'planned',start_date:'2026-04-28',end_date:'2026-06-30',owner:'PMM team',messaging_angle:'Close the gap between invoice and payment — one platform to create quotes, issue invoices and collect payments instantly',guardrails:'SDD mandate template must be reviewed by Legal per market. AR Add-on promo: 1 month free + 2 months if payment collected.',eligibility_notes:'All Qonto users. AR Add-on promo available to new subscribers only.',is_template:true,template_category:'Adoption campaign',template_description:'26 touchpoints across 4 phases. Multi-product adoption narrative (SDD, Payment Links, AR Add-on, Debt Collection) with 4-phase rollout. Real Notion data.'};
+
+  return{journeys:[j1,j2,j3,j4,j5],stages:[...s1,...s2,...s3,...s4,...s5],touchpoints:[...t1,...t2,...t3,...t4,...t5]};
+}
+
+function initData(){return{journeys:[],stages:[],touchpoints:[],results:[],library:createLibrary()}}
+
+// ─── UI primitives ───
+function Pill({label,bg,color,dot,small,onClick,active}){
+  return(<span onClick={onClick} style={{display:'inline-flex',alignItems:'center',gap:4,padding:small?'2px 8px':'4px 10px',borderRadius:20,fontSize:small?11:12,fontWeight:600,background:active===false?'transparent':bg||'#F5F5F5',color:color||'#636363',border:active===false?`1.5px solid ${bg||'#E0E0E0'}`:'1.5px solid transparent',cursor:onClick?'pointer':'default',whiteSpace:'nowrap',transition:'all .15s',userSelect:'none'}}>{dot&&<span style={{width:7,height:7,borderRadius:'50%',background:dot,flexShrink:0}}/>}{label}</span>);
+}
+function StatusBadge({status}){const s=ST[status]||ST.not_started;return<Pill label={s.l} bg={s.bg} color={s.t} small/>}
+function ChannelBadge({channel}){const c=CH_COLORS[channel]||{bg:'#F5F5F5',t:'#636363',d:'#8A8A8A'};return<Pill label={channel} bg={c.bg} color={c.t} dot={c.d} small/>}
+function Tip({children,warn,icon}){return<div className={`tip${warn?' warn':''}`}><span className="ico">{icon||(warn?'⚠️':'💡')}</span><div>{children}</div></div>}
+
+// ─── Modal ───
+function Modal({open,onClose,title,width,children}){
+  if(!open)return null;
+  return(<div style={{position:'fixed',inset:0,zIndex:1000,display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:48,background:'rgba(0,0,0,.35)',backdropFilter:'blur(3px)'}} onClick={onClose}><div className="fade-in" onClick={e=>e.stopPropagation()} style={{background:'white',borderRadius:16,width:width||620,maxWidth:'94vw',maxHeight:'calc(100vh - 96px)',overflow:'auto',boxShadow:'var(--sh-lg)'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'20px 24px 0',position:'sticky',top:0,background:'white',zIndex:2,borderRadius:'16px 16px 0 0'}}><h2 style={{fontSize:18,fontWeight:700}}>{title}</h2><button onClick={onClose} style={{background:'var(--g50)',borderRadius:8,width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:'var(--g600)'}}>×</button></div><div style={{padding:24}}>{children}</div></div></div>);
+}
+
+// ─── Form helpers ───
+function Field({label,required,children,hint}){
+  return(<div style={{marginBottom:14}}><label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--g500)',marginBottom:4,textTransform:'uppercase',letterSpacing:'.6px'}}>{label}{required&&<span style={{color:'#EF4444'}}> *</span>}</label>{children}{hint&&<span style={{fontSize:11,color:'var(--g400)',marginTop:2,display:'block'}}>{hint}</span>}</div>);
+}
+const inpS={width:'100%',padding:'8px 12px',borderRadius:8,border:'1.5px solid var(--g200)',background:'white',outline:'none',fontSize:14,fontWeight:500,fontFamily:'var(--font)'};
+function ChipSelect({options,value,onChange}){
+  const toggle=(opt)=>{if(value.includes(opt))onChange(value.filter(v=>v!==opt));else onChange([...value,opt])};
+  return(<div style={{display:'flex',flexWrap:'wrap',gap:5}}>{options.map(opt=><button key={opt} onClick={()=>toggle(opt)} style={{padding:'3px 11px',borderRadius:20,fontSize:12,fontWeight:600,background:value.includes(opt)?'var(--bk)':'var(--g50)',color:value.includes(opt)?'white':'var(--g600)',border:`1.5px solid ${value.includes(opt)?'var(--bk)':'var(--g200)'}`,transition:'all .15s'}}>{opt}</button>)}</div>);
+}
+
+// ─── Touchpoint card ───
+function TPCard({tp,onClick,compact}){
+  const cc=CH_COLORS[tp.channel]||{bg:'#F5F5F5',t:'#636363',d:'#8A8A8A'};
+  return(<div onClick={onClick} style={{background:'white',border:'1px solid var(--g200)',borderRadius:10,padding:compact?10:12,cursor:'pointer',transition:'all .15s',borderLeft:`3px solid ${cc.d}`}} onMouseEnter={e=>{e.currentTarget.style.boxShadow='var(--sh)';e.currentTarget.style.borderColor=cc.d}} onMouseLeave={e=>{e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor='var(--g200)';e.currentTarget.style.borderLeftColor=cc.d}}>
+    <div style={{fontSize:13,fontWeight:600,marginBottom:6,lineHeight:1.35}}>{tp.touchpoint_name}</div>
+    <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:6}}><ChannelBadge channel={tp.channel}/></div>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:11,color:'var(--g500)'}}><span>{tp.owner||'—'}</span>{tp.go_live_date&&<span style={{display:'inline-flex',alignItems:'center',gap:3,padding:'2px 7px',borderRadius:6,background:'#EFF6FF',color:'#1E40AF',fontWeight:600,fontSize:10}}>📅 {fmtD(tp.go_live_date)}{tp.end_date&&` → ${fmtD(tp.end_date)}`}</span>}</div>
+    {tp.market_override&&<div style={{marginTop:4,fontSize:10,color:'#92400E',fontWeight:700,background:'#FEF3C7',padding:'1px 6px',borderRadius:8,display:'inline-block'}}>Market override: {tp.market?.join(', ')}</div>}
+    {!compact&&<div style={{display:'flex',gap:3,marginTop:4}}>{tp.audience?.map(a=><span key={a} style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:a==='prospect'?'#EDE9FE':a==='client'?'#DBEAFE':'#FEF3C7',color:a==='prospect'?'#5B21B6':a==='client'?'#1E40AF':'#92400E',fontWeight:600}}>{a}</span>)}</div>}
+  </div>);
+}
+
+// ─── Touchpoint modal ───
+function TPModal({tp,open,onClose,onSave,onDelete,stages}){
+  const[form,setForm]=useState(tp||{});
+  useEffect(()=>{if(tp)setForm({...tp})},[tp]);
+  if(!open||!tp)return null;
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  return(<Modal open={open} onClose={onClose} title={form.id?'Edit touchpoint':'New touchpoint'} width={680}>
+    <Tip>Each touchpoint is one discrete action: an email, a landing page, an in-app nudge, a training session. Fill in what you know now — you can always come back.</Tip>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 16px'}}>
+      <div style={{gridColumn:'1/-1'}}><Field label="Touchpoint name" required hint="Short label, e.g. 'Email 1 — launch announcement'"><input style={inpS} value={form.touchpoint_name||''} onChange={e=>set('touchpoint_name',e.target.value)}/></Field></div>
+      <div style={{gridColumn:'1/-1'}}><Field label="Move to stage" required hint="Click a stage to move this touchpoint">
+  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+    {stages.map((s,i)=><button key={s.id} onClick={()=>set('stage_id',s.id)} style={{padding:'6px 14px',borderRadius:8,fontSize:12,fontWeight:600,background:form.stage_id===s.id?STAGE_C[i%STAGE_C.length]:'var(--g50)',color:form.stage_id===s.id?'white':'var(--g600)',border:form.stage_id===s.id?'none':'1.5px solid var(--g200)',transition:'all .15s',display:'flex',alignItems:'center',gap:5}}>
+      <span style={{width:6,height:6,borderRadius:'50%',background:form.stage_id===s.id?'rgba(255,255,255,.5)':STAGE_C[i%STAGE_C.length]}}/>{s.stage_name}
+    </button>)}
+  </div>
+</Field></div>
+      <Field label="Touchpoint type" hint="Specific format: email, tooltip, paid ad…"><select style={inpS} value={form.touchpoint_type||''} onChange={e=>set('touchpoint_type',e.target.value)}><option value="">Select…</option><optgroup label="GTM Comms">{TP_TYPES_GTM.map(t=><option key={t} value={t}>{t}</option>)}</optgroup><optgroup label="UX / In-product">{TP_TYPES_UX.map(t=><option key={t} value={t}>{t}</option>)}</optgroup><optgroup label="Internal">{TP_TYPES_INT.map(t=><option key={t} value={t}>{t}</option>)}</optgroup></select></Field>
+      <Field label="Owner" required hint="Person responsible for delivery"><input style={inpS} value={form.owner||''} onChange={e=>set('owner',e.target.value)}/></Field>
+      <Field label="Audience" required hint="Who sees this touchpoint?"><ChipSelect options={AUDIENCES} value={form.audience||[]} onChange={v=>set('audience',v)}/></Field>
+      <Field label="Audience detail" hint="e.g. 'Plus card holders', 'Construction leads'"><input style={inpS} value={form.audience_detail||''} onChange={e=>set('audience_detail',e.target.value)}/></Field>
+      <Field label="Market" hint="Inherits from journey by default"><ChipSelect options={MARKETS} value={form.market||[]} onChange={v=>set('market',v)}/></Field>
+      <Field label="Validated" hint="Has this been signed off?"><select style={inpS} value={form.validated||'tbd'} onChange={e=>set('validated',e.target.value)}>{VALIDATED.map(s=><option key={s} value={s}>{s}</option>)}</select></Field>
+      <div style={{gridColumn:'1/-1',padding:'12px 14px',background:'#EFF6FF',borderRadius:10,border:'1px solid #BFDBFE',marginBottom:14}}>
+        <div style={{fontSize:11,fontWeight:700,color:'#1E40AF',textTransform:'uppercase',letterSpacing:'.6px',marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📅 Dates & timeline</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 16px'}}>
+          <Field label="Go-live date" required hint="When users first see this"><input type="date" style={{...inpS,background:'white'}} value={form.go_live_date||''} onChange={e=>set('go_live_date',e.target.value)}/></Field>
+          <Field label="End date" hint="Leave blank if evergreen"><input type="date" style={{...inpS,background:'white'}} value={form.end_date||''} onChange={e=>set('end_date',e.target.value)}/></Field>
+        </div>
+      </div>
+      <div style={{gridColumn:'1/-1'}}><Field label="Message angle" hint="The specific copy angle or value proposition"><input style={inpS} value={form.message_angle||''} onChange={e=>set('message_angle',e.target.value)}/></Field></div>
+      <Field label="CTA label" hint="e.g. 'Get started', 'Upgrade now'"><input style={inpS} value={form.cta_label||''} onChange={e=>set('cta_label',e.target.value)}/></Field>
+      <Field label="Asset link" hint="Notion, Figma, Customer.io…"><input style={inpS} value={form.asset_link||''} onChange={e=>set('asset_link',e.target.value)} placeholder="https://..."/></Field>
+      <div style={{gridColumn:'1/-1',display:'flex',alignItems:'center',gap:8,marginBottom:10}}><input type="checkbox" id="mko" checked={form.market_override||false} onChange={e=>set('market_override',e.target.checked)}/><label htmlFor="mko" style={{fontSize:13,fontWeight:600,cursor:'pointer'}}>Market override</label><span style={{fontSize:11,color:'var(--g400)'}}>— Flag if this touchpoint deviates from the global journey</span></div>
+      {form.market_override&&<div style={{gridColumn:'1/-1'}}><Field label="Market override note" required hint="Explain what differs and why"><textarea style={{...inpS,minHeight:56,resize:'vertical'}} value={form.market_override_note||''} onChange={e=>set('market_override_note',e.target.value)}/></Field></div>}
+      <Field label="Team"><ChipSelect options={['PMM','CRM','Website','Paid','SEO','Creative','Comms','Product','Sales','CS']} value={form.team||[]} onChange={v=>set('team',v)}/></Field>
+      <Field label="Variant" hint="A/B label if applicable"><input style={inpS} value={form.variant||''} onChange={e=>set('variant',e.target.value)}/></Field>
+    </div>
+    <div style={{display:'flex',justifyContent:'space-between',marginTop:16,paddingTop:14,borderTop:'1px solid var(--g100)'}}>
+      <div>{form.id&&onDelete&&<button onClick={()=>{onDelete(form.id);onClose()}} style={{padding:'8px 16px',borderRadius:8,background:'#FEE2E2',color:'#991B1B',fontWeight:600}}>Delete</button>}</div>
+      <div style={{display:'flex',gap:8}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Cancel</button><button onClick={()=>{onSave(form);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Save</button></div>
+    </div>
+  </Modal>);
+}
+
+// ─── Journey modal ───
+function JourneyModal({journey,open,onClose,onSave}){
+  const[form,setForm]=useState(journey||{});
+  useEffect(()=>{if(journey)setForm({...journey})},[journey]);
+  if(!open)return null;
+  const set=(k,v)=>setForm(p=>({...p,[k]:v}));
+  return(<Modal open={open} onClose={onClose} title={form.id?'Edit journey':'New journey'} width={640}>
+    <Tip>A journey is your top-level container — one per GTM narrative, product launch, or lifecycle program. Start with a name and goal, then add stages and touchpoints.</Tip>
+    <Field label="Journey name" required><input style={inpS} value={form.journey_name||''} onChange={e=>set('journey_name',e.target.value)} placeholder="e.g. Cashback launch — Q2 2026"/></Field>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 16px'}}>
+      <Field label="Goal type" hint="Select one or more — campaigns often serve multiple goals"><ChipSelect options={GOAL_TYPES} value={form.goal_type||[]} onChange={v=>set('goal_type',v)}/></Field>
+      <Field label="Persona type" hint="Who is this journey for?"><select style={inpS} value={form.persona_type||''} onChange={e=>set('persona_type',e.target.value)}><option value="">Select…</option>{PERSONA_TYPES.map(p=><option key={p} value={p}>{p}</option>)}</select></Field>
+      <Field label="Status"><select style={inpS} value={form.status||'draft'} onChange={e=>set('status',e.target.value)}>{JOURNEY_STATUSES.map(s=><option key={s} value={s}>{s}</option>)}</select></Field>
+      <Field label="Owner"><input style={inpS} value={form.owner||''} onChange={e=>set('owner',e.target.value)}/></Field>
+      <Field label="Start date"><input type="date" style={inpS} value={form.start_date||''} onChange={e=>set('start_date',e.target.value)}/></Field>
+      <Field label="End date"><input type="date" style={inpS} value={form.end_date||''} onChange={e=>set('end_date',e.target.value)}/></Field>
+    </div>
+    <Field label="Segments" hint="Which customer segments are targeted?"><ChipSelect options={SEGMENTS} value={form.segment||[]} onChange={v=>set('segment',v)}/></Field>
+    <Field label="Markets" hint="Which markets does this journey cover?"><ChipSelect options={MARKETS} value={form.markets||[]} onChange={v=>set('markets',v)}/></Field>
+    <Field label="Messaging angle" hint="Core narrative angle, e.g. 'Never get blocked'"><textarea style={{...inpS,minHeight:56,resize:'vertical'}} value={form.messaging_angle||''} onChange={e=>set('messaging_angle',e.target.value)}/></Field>
+    <Field label="Guardrails" hint="Legal/comms constraints"><textarea style={{...inpS,minHeight:48,resize:'vertical'}} value={form.guardrails||''} onChange={e=>set('guardrails',e.target.value)}/></Field>
+    <Field label="Eligibility notes" hint="Who can and cannot be targeted"><textarea style={{...inpS,minHeight:48,resize:'vertical'}} value={form.eligibility_notes||''} onChange={e=>set('eligibility_notes',e.target.value)}/></Field>
+    <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:14,paddingTop:14,borderTop:'1px solid var(--g100)'}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Cancel</button><button onClick={()=>{onSave(form);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>{form.id?'Save':'Create journey'}</button></div>
+  </Modal>);
+}
+
+// ─── Stage editor ───
+function StageModal({stages,open,onClose,onSave,journeyId}){
+  const[list,setList]=useState(stages||[]);
+  useEffect(()=>{setList(stages||[])},[stages]);
+  const add=()=>setList([...list,{id:uid(),journey_id:journeyId,stage_name:'',stage_goal:'',position:list.length+1}]);
+  const rm=(i)=>setList(list.filter((_,idx)=>idx!==i));
+  const up=(i,f,v)=>{const n=[...list];n[i]={...n[i],[f]:v};setList(n)};
+  const mv=(i,dir)=>{const j=i+dir;if(j<0||j>=list.length)return;const n=[...list];[n[i],n[j]]=[n[j],n[i]];n.forEach((s,idx)=>s.position=idx+1);setList(n)};
+  return(<Modal open={open} onClose={onClose} title="Edit stages" width={680}>
+    <Tip>Stages define the phases of your customer journey. Reorder them to match your narrative. Each touchpoint belongs to exactly one stage.</Tip>
+    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+      {list.map((s,i)=>(<div key={s.id||i} style={{display:'flex',gap:8,alignItems:'center',padding:8,background:'var(--g25)',borderRadius:8,border:'1px solid var(--g100)'}}><span style={{fontWeight:700,fontSize:12,color:'var(--g400)',width:20,textAlign:'center'}}>{i+1}</span><input style={{...inpS,flex:1}} value={s.stage_name} onChange={e=>up(i,'stage_name',e.target.value)} placeholder="Stage name"/><input style={{...inpS,flex:1.5}} value={s.stage_goal||''} onChange={e=>up(i,'stage_goal',e.target.value)} placeholder="What does success look like?"/><button onClick={()=>mv(i,-1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↑</button><button onClick={()=>mv(i,1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↓</button><button onClick={()=>rm(i)} style={{background:'#FEE2E2',borderRadius:6,width:26,height:26,fontSize:13,color:'#991B1B'}}>×</button></div>))}
+    </div>
+    <button onClick={add} style={{marginTop:10,padding:'8px 16px',borderRadius:8,background:'var(--g50)',border:'1.5px dashed var(--g300)',color:'var(--g600)',fontWeight:600,width:'100%'}}>+ Add stage</button>
+    <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16,paddingTop:14,borderTop:'1px solid var(--g100)'}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Cancel</button><button onClick={()=>{onSave(list);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Save stages</button></div>
+  </Modal>);
+}
+
+// ─── Import modal ───
+function ImportModal({open,onClose,onImport}){
+  const[tab,setTab]=useState('notion');
+  const[raw,setRaw]=useState('');
+  const[name,setName]=useState('');
+  const[err,setErr]=useState('');
+  const[preview,setPreview]=useState(null);
+
+  const tryParse=()=>{
+    setErr('');setPreview(null);
+    try{
+      let result;
+      if(tab==='csv') result=parseCSV(raw);
+      else{
+        try{result=parseNotionJSON(raw)}catch(e){
+          if(e.message==='NOT_NOTION') result=parseGenericJSON(raw);
+          else throw e;
+        }
+      }
+      setPreview(result);
+    }catch(e){setErr(e.message)}
+  };
+
+  const doImport=()=>{
+    if(!preview)return;
+    onImport(name||'Imported journey',preview);
+    setRaw('');setPreview(null);setName('');onClose();
+  };
+
+  return(<Modal open={open} onClose={onClose} title="Import a journey" width={720}>
+    <Tip icon="📥"><b>Import from Notion or CSV.</b> Paste data from your Notion database or a CSV export. The tool will auto-detect the format and map fields to the journey model.</Tip>
+
+    {/* Notion-specific tip */}
+    <div className="tip" style={{background:'#F5F3FF',borderColor:'#C4B5FD',color:'#5B21B6'}}>
+      <span className="ico">🔮</span>
+      <div>
+        <b>Easiest way to import from Notion:</b> Ask Claude — <i>"Import the Notion database at [paste your Notion URL] into my journey tool"</i>. Claude will fetch the data, transform it, and give you the JSON to paste here.
+      </div>
+    </div>
+
+    <div style={{display:'flex',gap:0,marginBottom:16,borderBottom:'2px solid var(--g100)'}}>
+      {[{k:'notion',l:'Notion / JSON'},{k:'csv',l:'CSV'}].map(v=><button key={v.k} onClick={()=>{setTab(v.k);setErr('');setPreview(null)}} style={{padding:'9px 18px',fontSize:13,fontWeight:600,background:'transparent',color:tab===v.k?'var(--bk)':'var(--g500)',borderBottom:tab===v.k?'2px solid var(--bk)':'2px solid transparent',marginBottom:-2}}>{v.l}</button>)}
+    </div>
+
+    <Field label="Journey name" required hint="Give this imported journey a name">
+      <input style={inpS} value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Cashback — Q2 2026"/>
+    </Field>
+
+    <Field label={tab==='csv'?'Paste CSV data':'Paste JSON data'} required hint={tab==='csv'?'First row should be column headers. Expected columns: Touchpoint, Phase, Channel, Status, Owner, etc.':'Paste the JSON array from Claude, or a Notion database export. Expected: [{Touchpoint, Phase, Channel, Status, ...}]'}>
+      <textarea style={{...inpS,minHeight:180,resize:'vertical',fontFamily:'monospace',fontSize:12}} value={raw} onChange={e=>{setRaw(e.target.value);setErr('');setPreview(null)}} placeholder={tab==='csv'?'Touchpoint,Phase,Channel,Status,Owner\n"Landing page update",Acquisition,Website/SEO,To do,Romuald\n...':'[\n  {"Touchpoint": "Landing page", "Phase": "Acquisition", "Channel": "[\\\"Website/SEO\\\"]", "Status": "To do", ...},\n  ...\n]'}/>
+    </Field>
+
+    {err&&<div style={{padding:'8px 12px',background:'#FEE2E2',borderRadius:8,color:'#991B1B',fontSize:13,marginBottom:12}}>Error: {err}</div>}
+
+    {!preview&&<button onClick={tryParse} disabled={!raw.trim()} style={{padding:'8px 20px',borderRadius:8,background:raw.trim()?'var(--bk)':'var(--g200)',color:raw.trim()?'white':'var(--g400)',fontWeight:600,marginBottom:16}}>Preview import</button>}
+
+    {preview&&(<div className="fade-in">
+      <div style={{padding:12,background:'#D1FAE5',borderRadius:10,marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
+        <span style={{fontSize:20}}>✅</span>
+        <div>
+          <div style={{fontWeight:700,color:'#065F46'}}>Parsed successfully</div>
+          <div style={{fontSize:13,color:'#065F46'}}>{preview.stages.length} stages · {preview.touchpoints.length} touchpoints · Source: {preview.source}</div>
+        </div>
+      </div>
+      <div style={{maxHeight:200,overflow:'auto',border:'1px solid var(--g200)',borderRadius:8,marginBottom:16}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+          <thead><tr style={{background:'var(--g50)'}}><th style={{padding:'6px 10px',textAlign:'left',fontWeight:700}}>Touchpoint</th><th style={{padding:'6px 10px',textAlign:'left',fontWeight:700}}>Stage</th><th style={{padding:'6px 10px',textAlign:'left',fontWeight:700}}>Channel</th><th style={{padding:'6px 10px',textAlign:'left',fontWeight:700}}>Status</th></tr></thead>
+          <tbody>{preview.touchpoints.map((tp,i)=>{const st=preview.stages.find(s=>s.id===tp.stage_id);return<tr key={i} style={{borderTop:'1px solid var(--g100)'}}><td style={{padding:'5px 10px'}}>{tp.touchpoint_name}</td><td style={{padding:'5px 10px'}}>{st?.stage_name||'—'}</td><td style={{padding:'5px 10px'}}><ChannelBadge channel={tp.channel}/></td><td style={{padding:'5px 10px'}}><StatusBadge status={tp.status}/></td></tr>})}</tbody>
+        </table>
+      </div>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8}}>
+        <button onClick={()=>setPreview(null)} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Back</button>
+        <button onClick={doImport} disabled={!name.trim()} style={{padding:'8px 20px',borderRadius:8,background:name.trim()?'var(--bk)':'var(--g200)',color:name.trim()?'white':'var(--g400)',fontWeight:600}}>Import journey</button>
+      </div>
+    </div>)}
+  </Modal>);
+}
+
+// ─── Matrix view ───
+function MatrixView({stages,touchpoints,onClickTP,onAddTP}){
+  const usedCh=useMemo(()=>{const s=new Set(touchpoints.map(tp=>tp.channel));return[...new Set([...CHANNELS,...Object.keys(CH_COLORS)])].filter(c=>s.has(c))},[touchpoints]);
+  const displayCh=usedCh.length>0?usedCh:CHANNELS.slice(0,5);
+  return(<div style={{overflowX:'auto',paddingBottom:16}}>
+    <div style={{display:'flex',gap:6,marginBottom:20,paddingLeft:150}}>
+      {stages.map((stage,i)=>{const count=touchpoints.filter(tp=>tp.stage_id===stage.id).length;return(<React.Fragment key={stage.id}><div style={{minWidth:200,flex:1}}><div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}><span style={{width:8,height:8,borderRadius:'50%',background:STAGE_C[i%STAGE_C.length],flexShrink:0}}/><span style={{fontWeight:700,fontSize:14}}>{stage.stage_name}</span><span style={{background:'var(--g100)',borderRadius:10,padding:'1px 7px',fontSize:11,fontWeight:700,color:'var(--g600)'}}>{count}</span></div><span style={{fontSize:12,color:'var(--g500)',paddingLeft:14}}>{stage.stage_goal}</span></div>{i<stages.length-1&&<span style={{color:'var(--g300)',fontSize:18,alignSelf:'center',flexShrink:0}}>→</span>}</React.Fragment>)})}
+    </div>
+    {touchpoints.length===0&&<Tip icon="👆">Click <b>+ New touchpoint</b> or click any empty cell below to add your first touchpoint to the map.</Tip>}
+    <div style={{display:'grid',gridTemplateColumns:`150px repeat(${stages.length},minmax(200px,1fr))`,gap:1,background:'var(--g200)',borderRadius:12,overflow:'hidden',border:'1px solid var(--g200)'}}>
+      <div style={{background:'var(--g50)',padding:'10px 14px',fontWeight:700,fontSize:11,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'.5px'}}>Channel</div>
+      {stages.map(s=><div key={s.id} style={{background:'var(--g50)',padding:'10px 14px',fontWeight:700,fontSize:11,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'.5px'}}>{s.stage_name}</div>)}
+      {displayCh.map(ch=>{const cc=CH_COLORS[ch]||{d:'#8A8A8A'};return(<React.Fragment key={ch}><div style={{background:'white',padding:'10px 12px',display:'flex',alignItems:'flex-start',gap:5,fontSize:12,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,marginTop:4,flexShrink:0}}/>{ch}</div>{stages.map(stage=>{const tps=touchpoints.filter(tp=>tp.stage_id===stage.id&&tp.channel===ch);return(<div key={`${ch}-${stage.id}`} style={{background:'white',padding:6,minHeight:56,display:'flex',flexDirection:'column',gap:5}}>{tps.map(tp=><TPCard key={tp.id} tp={tp} onClick={()=>onClickTP(tp)} compact/>)}{tps.length===0&&<button onClick={()=>onAddTP(stage.id,ch)} style={{width:'100%',height:'100%',minHeight:40,background:'transparent',border:'1.5px dashed var(--g200)',borderRadius:8,color:'var(--g400)',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--g400)';e.currentTarget.style.background='var(--g25)'}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--g200)';e.currentTarget.style.background='transparent'}}>+</button>}</div>)})}</React.Fragment>)})}
+    </div>
+  </div>);
+}
+
+// ─── Timeline view ───
+function TimelineView({touchpoints,stages,onClickTP}){
+  const sorted=useMemo(()=>[...touchpoints].filter(tp=>tp.go_live_date).sort((a,b)=>new Date(a.go_live_date)-new Date(b.go_live_date)),[touchpoints]);
+  let lastDate='';
+  return(<div style={{maxWidth:780}}>
+    {sorted.length>0&&<Tip icon="📅">Touchpoints are ordered by go-live date. Click any card to view or edit its details.</Tip>}
+    {sorted.map(tp=>{const d=tp.go_live_date;const showDate=d!==lastDate;lastDate=d;const cc=CH_COLORS[tp.channel]||{d:'#8A8A8A'};return(<div key={tp.id} style={{display:'flex',gap:14,marginBottom:2}}><div style={{width:80,textAlign:'right',paddingTop:12,fontSize:13,fontWeight:600,color:showDate?'var(--bk)':'transparent'}}>{fmtD(d)}</div><div style={{display:'flex',flexDirection:'column',alignItems:'center',width:18}}><div style={{width:10,height:10,borderRadius:'50%',background:cc.d,marginTop:14,zIndex:1}}/><div style={{width:2,flex:1,background:'var(--g200)',marginTop:-2}}/></div><div style={{flex:1,paddingBottom:6}}><TPCard tp={tp} onClick={()=>onClickTP(tp)} compact/></div></div>)})}
+    {sorted.length===0&&<Tip warn>No touchpoints have go-live dates yet. Add dates to your touchpoints to see the timeline view.</Tip>}
+  </div>);
+}
+
+// ─── Gaps view ───
+function GapsView({stages,touchpoints}){
+  const usedCh=useMemo(()=>{const s=new Set(touchpoints.map(tp=>tp.channel));return[...new Set([...CHANNELS,...Object.keys(CH_COLORS)])].filter(c=>s.has(c))},[touchpoints]);
+  const gaps=useMemo(()=>{const r=[];stages.forEach(stage=>usedCh.forEach(ch=>{if(!touchpoints.some(tp=>tp.stage_id===stage.id&&tp.channel===ch))r.push({stage,channel:ch})}));return r},[stages,touchpoints,usedCh]);
+  const coverage=stages.map(stage=>({stage,count:touchpoints.filter(tp=>tp.stage_id===stage.id).length}));
+  return(<div>
+    <Tip icon="🔍"><b>Gaps analysis</b> shows which stage × channel combinations have no touchpoint yet. Some gaps are intentional — not every channel needs to be active at every stage. Use this to spot unintentional blind spots in your plan.</Tip>
+    <h3 style={{fontSize:15,fontWeight:700,marginBottom:12}}>Coverage by stage</h3>
+    <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:24}}>
+      {coverage.map(({stage,count})=><div key={stage.id} style={{padding:'14px 18px',borderRadius:12,border:'1px solid var(--g200)',background:count===0?'#FEE2E2':count<3?'#FEF3C7':'#D1FAE5',minWidth:130,textAlign:'center'}}><div style={{fontSize:22,fontWeight:800}}>{count}</div><div style={{fontSize:12,fontWeight:600,color:'var(--g600)',marginTop:2}}>{stage.stage_name}</div></div>)}
+    </div>
+    <h3 style={{fontSize:15,fontWeight:700,marginBottom:12}}>Channel × stage gaps ({gaps.length})</h3>
+    {gaps.length===0?<div style={{padding:20,background:'#D1FAE5',borderRadius:12,color:'#065F46',fontWeight:600,textAlign:'center'}}>Full coverage — no gaps across active channels and stages.</div>:
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:6}}>{gaps.map((g,i)=>{const cc=CH_COLORS[g.channel]||{d:'#8A8A8A'};return<div key={i} style={{padding:'8px 12px',borderRadius:8,border:'1.5px dashed var(--g300)',background:'var(--g25)',display:'flex',alignItems:'center',gap:8,fontSize:13}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,flexShrink:0}}/><span><strong>{g.channel}</strong> in <strong>{g.stage.stage_name}</strong></span></div>})}</div>}
+  </div>);
+}
+
+// ─── Filters ───
+function FiltersBar({filters,setFilters,touchpoints}){
+  const usedCh=useMemo(()=>{const s=new Set(touchpoints.map(tp=>tp.channel));return[...new Set([...CHANNELS,...Object.keys(CH_COLORS)])].filter(c=>s.has(c))},[touchpoints]);
+  const toggle=(key,value)=>setFilters(p=>{const c=p[key]||[];return{...p,[key]:c.includes(value)?c.filter(v=>v!==value):[...c,value]}});
+  const hasF=Object.values(filters).some(a=>a.length>0);
+  return(<div style={{marginBottom:16}}>
+    <div style={{display:'flex',flexWrap:'wrap',gap:5,alignItems:'center'}}>
+      <span style={{fontSize:11,fontWeight:700,color:'var(--g500)',marginRight:2,textTransform:'uppercase',letterSpacing:'.5px'}}>Channel:</span>
+      {usedCh.map(ch=>{const cc=CH_COLORS[ch]||{};const active=filters.channels.length===0||filters.channels.includes(ch);return<Pill key={ch} label={ch} bg={cc.bg} color={cc.t} dot={cc.d} small onClick={()=>toggle('channels',ch)} active={active}/>})}
+    </div>
+    <div style={{display:'flex',flexWrap:'wrap',gap:5,alignItems:'center',marginTop:6}}>
+      <span style={{fontSize:11,fontWeight:700,color:'var(--g500)',marginRight:2,textTransform:'uppercase',letterSpacing:'.5px'}}>Audience:</span>
+      {AUDIENCES.map(a=>{const active=filters.audiences.length===0||filters.audiences.includes(a);return<Pill key={a} label={a} bg={a==='prospect'?'#EDE9FE':a==='client'?'#DBEAFE':'#FEF3C7'} color={a==='prospect'?'#5B21B6':a==='client'?'#1E40AF':'#92400E'} small onClick={()=>toggle('audiences',a)} active={active}/>})}
+      {hasF&&<button onClick={()=>setFilters({channels:[],audiences:[],markets:[]})} style={{padding:'2px 10px',borderRadius:20,background:'var(--g100)',color:'var(--g600)',fontSize:11,fontWeight:600,marginLeft:8}}>Clear all</button>}
+    </div>
+  </div>);
+}
+
+// ─── Journey header ───
+function JourneyHeader({journey,stages,touchpoints,onEdit,onEditStages}){
+  const stC={draft:'var(--g50)',planned:'#DBEAFE',live:'#D1FAE5',completed:'#EDE9FE'};
+  const stT={draft:'var(--g500)',planned:'#1E40AF',live:'#065F46',completed:'#5B21B6'};
+  const total=touchpoints.length,done=touchpoints.filter(tp=>tp.status==='done').length,blockers=touchpoints.filter(tp=>tp.status==='blocker').length;
+  const liveWarnings=journey.status==='live'?touchpoints.filter(tp=>tp.status==='not_started').length:0;
+  return(<div style={{marginBottom:20}}>
+    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,marginBottom:12}}>
+      <div>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}><h1 style={{fontSize:22,fontWeight:800}}>{journey.journey_name}</h1><Pill label={journey.status} bg={stC[journey.status]} color={stT[journey.status]}/></div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:6,fontSize:13,color:'var(--g600)'}}><span>{total} touchpoints</span><span>·</span><span>{stages.length} stages</span><span>·</span><span>{fmtD(journey.start_date)} – {fmtD(journey.end_date)}</span><span>·</span><span>{journey.owner}</span></div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}}>{journey.markets?.map(m=><Pill key={m} label={m} bg="var(--g50)" color="var(--g600)" small/>)}{journey.segment?.map(s=><Pill key={s} label={s} bg="var(--g50)" color="var(--g600)" small/>)}{(journey.goal_type||[]).map(g=><Pill key={g} label={g} bg="#E0E7FF" color="#3730A3" small/>)}</div>
+      </div>
+      <div style={{display:'flex',gap:6,flexShrink:0}}>
+        <button onClick={onEditStages} style={{padding:'7px 14px',borderRadius:8,background:'var(--g50)',border:'1px solid var(--g200)',color:'var(--g600)',fontWeight:600,fontSize:13}}>Stages</button>
+        <button onClick={onEdit} style={{padding:'7px 14px',borderRadius:8,background:'var(--g50)',border:'1px solid var(--g200)',color:'var(--g600)',fontWeight:600,fontSize:13}}>Edit</button>
+      </div>
+    </div>
+    <div style={{display:'flex',gap:12,alignItems:'center'}}>
+      <div style={{flex:1,height:5,background:'var(--g100)',borderRadius:3,overflow:'hidden'}}><div style={{height:'100%',width:`${total>0?(done/total*100):0}%`,background:'#10B981',borderRadius:3,transition:'width .3s'}}/></div>
+      <span style={{fontSize:12,fontWeight:600,color:'var(--g500)',whiteSpace:'nowrap'}}>{done}/{total} done{blockers>0&&<span style={{color:'#EF4444',marginLeft:6}}>{blockers} blocker{blockers>1?'s':''}</span>}</span>
+    </div>
+    
+    {journey.messaging_angle&&<div style={{marginTop:10,padding:'9px 14px',background:'var(--g25)',borderRadius:8,fontSize:13,color:'var(--g600)',borderLeft:'3px solid var(--g300)'}}><strong style={{color:'var(--bk)'}}>Messaging angle:</strong> {journey.messaging_angle}</div>}
+    {journey.guardrails&&<div style={{marginTop:6,padding:'9px 14px',background:'#FFFBEB',borderRadius:8,fontSize:13,color:'#92400E',borderLeft:'3px solid #FDE68A'}}><strong>Guardrails:</strong> {journey.guardrails}</div>}
+  </div>);
+}
+
+// ─── Library page ───
+function LibraryPage({library,onClone,onPreview}){
+  const CAT_ICONS={'Product launch':'🚀','Onboarding':'👋','Retention':'🔄','Bundle GTM':'💳','Adoption campaign':'🔁'};
+  const CAT_C={'Product launch':{bg:'#EDE9FE',t:'#5B21B6'},'Onboarding':{bg:'#DBEAFE',t:'#1E40AF'},'Retention':{bg:'#FEF3C7',t:'#92400E'},'Bundle GTM':{bg:'#FCE7F3',t:'#9D174D'},'Adoption campaign':{bg:'#D1FAE5',t:'#065F46'}};
+  return(<div className="fade-in">
+    <div style={{textAlign:'center',marginBottom:32,paddingTop:8}}><h2 style={{fontSize:24,fontWeight:800,marginBottom:6}}>Past campaigns library</h2><p style={{color:'var(--g500)',fontSize:15,maxWidth:520,margin:'0 auto'}}>Browse completed campaigns for inspiration. Clone any journey as a starting point for your next plan.</p></div>
+    <Tip icon="🎯"><b>How to use:</b> Click <b>Preview</b> to see the full channel × stage matrix. Click <b>Clone as template</b> to copy it into your workspace — all touchpoints will be reset to "not started" with dates cleared, so you keep the structure while adapting to your timeline.</Tip>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:16}}>
+      {library.journeys.map(j=>{
+        const stageCount=library.stages.filter(s=>s.journey_id===j.id).length;const tpCount=library.touchpoints.filter(tp=>tp.journey_id===j.id).length;const channels=[...new Set(library.touchpoints.filter(tp=>tp.journey_id===j.id).map(tp=>tp.channel))];const cat=j.template_category||'General';const catC=CAT_C[cat]||{bg:'var(--g50)',t:'var(--g600)'};
+        return(<div key={j.id} style={{background:'white',borderRadius:14,border:'1px solid var(--g200)',overflow:'hidden',transition:'all .2s'}} onMouseEnter={e=>{e.currentTarget.style.boxShadow='var(--sh)'}} onMouseLeave={e=>{e.currentTarget.style.boxShadow='none'}}>
+          <div style={{padding:'16px 20px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}><span style={{fontSize:20}}>{CAT_ICONS[cat]||'📋'}</span><Pill label={cat} bg={catC.bg} color={catC.t} small/>{(Array.isArray(j.goal_type)?j.goal_type:[j.goal_type]).filter(Boolean).map(g=><Pill key={g} label={g} bg="var(--g50)" color="var(--g600)" small/>)}</div>
+            <h3 style={{fontSize:16,fontWeight:700,marginBottom:6}}>{j.journey_name}</h3>
+            <p style={{fontSize:13,color:'var(--g500)',lineHeight:1.5,marginBottom:12}}>{j.template_description}</p>
+            <div style={{display:'flex',gap:12,fontSize:12,color:'var(--g500)',marginBottom:12}}><span><strong>{tpCount}</strong> touchpoints</span><span><strong>{stageCount}</strong> stages</span><span><strong>{channels.length}</strong> channels</span></div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:8}}>{channels.slice(0,5).map(ch=><ChannelBadge key={ch} channel={ch}/>)}{channels.length>5&&<Pill label={`+${channels.length-5}`} bg="var(--g50)" color="var(--g500)" small/>}</div>
+          </div>
+          <div style={{borderTop:'1px solid var(--g100)',padding:'10px 20px',display:'flex',gap:8,background:'var(--g25)'}}>
+            <button onClick={()=>onPreview(j)} style={{flex:1,padding:'8px 0',borderRadius:8,background:'white',border:'1px solid var(--g200)',color:'var(--g600)',fontWeight:600}}>Preview</button>
+            <button onClick={()=>onClone(j)} style={{flex:1,padding:'8px 0',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Clone as template</button>
+          </div>
+        </div>);
+      })}
+    </div>
+  </div>);
+}
+
+// ─── Library preview ───
+function LibPreviewModal({journey,library,open,onClose,onClone}){
+  if(!open||!journey)return null;
+  const stages=library.stages.filter(s=>s.journey_id===journey.id).sort((a,b)=>a.position-b.position);
+  const tps=library.touchpoints.filter(tp=>tp.journey_id===journey.id);
+  const usedCh=[...new Set(tps.map(tp=>tp.channel))];
+  return(<Modal open={open} onClose={onClose} title={journey.journey_name} width={960}>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+      {journey.markets?.map(m=><Pill key={m} label={m} small bg="var(--g50)" color="var(--g600)"/>)}
+      {(Array.isArray(journey.goal_type)?journey.goal_type:[journey.goal_type]).filter(Boolean).map(g=><Pill key={g} label={g} bg="#E0E7FF" color="#3730A3" small/>)}
+      <Pill label={`${tps.length} touchpoints`} bg="var(--g50)" color="var(--g600)" small/>
+    </div>
+    {journey.messaging_angle&&<div style={{fontSize:13,color:'var(--g500)',background:'var(--g25)',padding:'8px 12px',borderRadius:8,borderLeft:'3px solid var(--g300)',marginBottom:12}}><strong style={{color:'var(--bk)'}}>Messaging angle:</strong> {journey.messaging_angle}</div>}
+    <div style={{overflowX:'auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:`130px repeat(${stages.length},minmax(150px,1fr))`,gap:1,background:'var(--g200)',borderRadius:10,overflow:'hidden',border:'1px solid var(--g200)'}}>
+        <div style={{background:'var(--g50)',padding:'8px 10px',fontSize:11,fontWeight:700,color:'var(--g500)',textTransform:'uppercase'}}>Channel</div>
+        {stages.map(s=><div key={s.id} style={{background:'var(--g50)',padding:'8px 10px',fontSize:11,fontWeight:700,color:'var(--g500)',textTransform:'uppercase'}}>{s.stage_name}</div>)}
+        {usedCh.map(ch=>{const cc=CH_COLORS[ch]||{d:'#8A8A8A'};return(<React.Fragment key={ch}><div style={{background:'white',padding:'8px 10px',display:'flex',alignItems:'flex-start',gap:5,fontSize:12,fontWeight:600}}><span style={{width:6,height:6,borderRadius:'50%',background:cc.d,marginTop:4,flexShrink:0}}/>{ch}</div>{stages.map(stage=>{const cellTPs=tps.filter(tp=>tp.stage_id===stage.id&&tp.channel===ch);return(<div key={`${ch}-${stage.id}`} style={{background:'white',padding:5,minHeight:40}}>{cellTPs.map(tp=><div key={tp.id} style={{fontSize:11,padding:'5px 8px',background:'var(--g25)',borderRadius:6,marginBottom:3,borderLeft:`2px solid ${cc.d}`,lineHeight:1.3}}>{tp.touchpoint_name}</div>)}</div>)})}</React.Fragment>)})}
+      </div>
+    </div>
+    <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:20,paddingTop:14,borderTop:'1px solid var(--g100)'}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)',fontWeight:600}}>Close</button><button onClick={()=>{onClone(journey);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Clone as template</button></div>
+  </Modal>);
+}
+
+// ─── Home ───
+function HomePage({onNew,onGoLibrary,onImport}){
+  return(<div className="fade-in" style={{textAlign:'center',padding:'48px 24px'}}>
+    <div style={{fontSize:48,marginBottom:12}}>🗺️</div>
+    <h2 style={{fontSize:24,fontWeight:800,marginBottom:6}}>Journey action plan</h2>
+    <p style={{color:'var(--g500)',fontSize:15,maxWidth:480,margin:'0 auto 8px'}}>Map every touchpoint your prospects and clients face — from first awareness through adoption — in one visual, stage-by-stage view.</p>
+    <p style={{color:'var(--g400)',fontSize:13,maxWidth:420,margin:'0 auto 28px'}}>Combines UX/in-product steps and GTM communication actions in one linear map.</p>
+    <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:32}}>
+      <button onClick={onNew} style={{padding:'12px 28px',borderRadius:10,background:'var(--bk)',color:'white',fontWeight:700,fontSize:15,boxShadow:'var(--sh)'}}>Create a journey</button>
+      <button onClick={onImport} style={{padding:'12px 28px',borderRadius:10,background:'white',color:'var(--bk)',fontWeight:700,fontSize:15,border:'1.5px solid var(--g200)',boxShadow:'0 1px 2px rgba(0,0,0,.05)'}}>Import from Notion</button>
+      <button onClick={onGoLibrary} style={{padding:'12px 28px',borderRadius:10,background:'white',color:'var(--bk)',fontWeight:700,fontSize:15,border:'1.5px solid var(--g200)',boxShadow:'0 1px 2px rgba(0,0,0,.05)'}}>Browse past campaigns</button>
+    </div>
+    <div style={{maxWidth:640,margin:'0 auto',textAlign:'left'}}>
+      <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,textAlign:'center'}}>How it works</h3>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        {[
+          {icon:'📋',title:'Create a journey',desc:'Define your campaign: name, goal, persona, markets, messaging angle, and guardrails.'},
+          {icon:'🗂️',title:'Set up stages',desc:'Customize the phases your users will go through — from awareness to retention.'},
+          {icon:'📌',title:'Add touchpoints',desc:'Each touchpoint is one action: an email, a landing page, an in-app nudge. Place them in the channel × stage matrix.'},
+          {icon:'🔍',title:'Spot gaps',desc:'The gaps view shows which stage/channel combos have no coverage — intentional or otherwise.'},
+        ].map((s,i)=><div key={i} style={{padding:16,background:'white',borderRadius:12,border:'1px solid var(--g200)'}}><div style={{fontSize:20,marginBottom:6}}>{s.icon}</div><div style={{fontWeight:700,fontSize:13,marginBottom:4}}>{s.title}</div><div style={{fontSize:12,color:'var(--g500)',lineHeight:1.5}}>{s.desc}</div></div>)}
+      </div>
+    </div>
+  </div>);
+}
+
+// ─── Main App ───
+function App(){
+  const[data,setData]=useState(()=>{try{const s=localStorage.getItem('jap_v3');if(s){const p=JSON.parse(s);p.library=createLibrary();return p}}catch(e){}return initData()});
+  useEffect(()=>{try{localStorage.setItem('jap_v3',JSON.stringify(data))}catch(e){}},[data]);
+
+  const[activeJId,setActiveJId]=useState(data.journeys[0]?.id||null);
+  const[page,setPage]=useState(data.journeys.length>0?'journey':'home');
+  const[view,setView]=useState('matrix');
+  const[filters,setFilters]=useState({channels:[],audiences:[],markets:[]});
+  const[tpModal,setTpModal]=useState({open:false,tp:null});
+  const[jModal,setJModal]=useState({open:false,journey:null});
+  const[stageModal,setStageModal]=useState(false);
+  const[previewModal,setPreviewModal]=useState({open:false,journey:null});
+  const[importModal,setImportModal]=useState(false);
+
+  const activeJ=data.journeys.find(j=>j.id===activeJId);
+  const jStages=useMemo(()=>data.stages.filter(s=>s.journey_id===activeJId).sort((a,b)=>a.position-b.position),[data.stages,activeJId]);
+  const allTPs=useMemo(()=>data.touchpoints.filter(tp=>tp.journey_id===activeJId&&tp.validated!=='discarded'),[data.touchpoints,activeJId]);
+  const filteredTPs=useMemo(()=>{let t=allTPs;if(filters.channels.length)t=t.filter(tp=>filters.channels.includes(tp.channel));if(filters.audiences.length)t=t.filter(tp=>tp.audience?.some(a=>filters.audiences.includes(a)));return t},[allTPs,filters]);
+
+  const saveTP=(tp)=>setData(p=>{const i=p.touchpoints.findIndex(t=>t.id===tp.id);if(i>=0){const n=[...p.touchpoints];n[i]=tp;return{...p,touchpoints:n}}return{...p,touchpoints:[...p.touchpoints,{...tp,id:uid(),journey_id:activeJId}]}});
+  const deleteTP=(id)=>setData(p=>({...p,touchpoints:p.touchpoints.filter(tp=>tp.id!==id)}));
+  const saveJ=(j)=>{setData(p=>{const i=p.journeys.findIndex(jj=>jj.id===j.id);if(i>=0){const n=[...p.journeys];n[i]=j;return{...p,journeys:n}}const nJ={...j,id:uid()};const nS=DEFAULT_STAGES.map(s=>({...s,id:uid(),journey_id:nJ.id}));setActiveJId(nJ.id);setPage('journey');return{...p,journeys:[...p.journeys,nJ],stages:[...p.stages,...nS]}})};
+  const deleteJ=(id)=>{setData(p=>({...p,journeys:p.journeys.filter(j=>j.id!==id),stages:p.stages.filter(s=>s.journey_id!==id),touchpoints:p.touchpoints.filter(tp=>tp.journey_id!==id)}));const rem=data.journeys.filter(j=>j.id!==id);if(rem.length){setActiveJId(rem[0].id);setPage('journey')}else{setActiveJId(null);setPage('home')}};
+  const saveStages=(list)=>setData(p=>({...p,stages:[...p.stages.filter(s=>s.journey_id!==activeJId),...list]}));
+
+  const cloneFromLib=(libJ)=>{
+    const nJId=uid();const libS=data.library.stages.filter(s=>s.journey_id===libJ.id).sort((a,b)=>a.position-b.position);const libTP=data.library.touchpoints.filter(tp=>tp.journey_id===libJ.id);const sMap={};
+    const nS=libS.map(s=>{const nId=uid();sMap[s.id]=nId;return{...clone(s),id:nId,journey_id:nJId}});
+    const nTP=libTP.map(tp=>({...clone(tp),id:uid(),journey_id:nJId,stage_id:sMap[tp.stage_id]||tp.stage_id,status:'not_started',validated:'tbd',go_live_date:'',end_date:'',kick_off_date:'',eta_deliverables:''}));
+    const nJ={...clone(libJ),id:nJId,journey_name:libJ.journey_name+' (copy)',status:'draft',is_template:false};
+    setData(p=>({...p,journeys:[...p.journeys,nJ],stages:[...p.stages,...nS],touchpoints:[...p.touchpoints,...nTP]}));
+    setActiveJId(nJId);setPage('journey');setView('matrix');
+  };
+
+  const importJourney=(name,result)=>{
+    const nJId=uid();
+    const nS=result.stages.map(s=>({...s,id:s.id||uid(),journey_id:nJId}));
+    const sMap={};result.stages.forEach((s,i)=>sMap[s.id]=nS[i].id);
+    const nTP=result.touchpoints.map(tp=>({...tp,id:uid(),journey_id:nJId,stage_id:sMap[tp.stage_id]||tp.stage_id}));
+    const nJ={id:nJId,journey_name:name,goal_type:[],persona_type:'',segment:[],markets:['Global'],status:'draft',start_date:'',end_date:'',owner:'',messaging_angle:'',guardrails:'',eligibility_notes:''};
+    setData(p=>({...p,journeys:[...p.journeys,nJ],stages:[...p.stages,...nS],touchpoints:[...p.touchpoints,...nTP]}));
+    setActiveJId(nJId);setPage('journey');setView('matrix');
+  };
+
+  const openAddTP=(stageId,channel)=>setTpModal({open:true,tp:{touchpoint_name:'',stage_id:stageId,channel,touchpoint_type:'',owner:'',audience:[],market:activeJ?.markets||[],status:'not_started',validated:'tbd',go_live_date:'',team:[],market_override:false}});
+
+  const exportCSV=()=>{
+    const sMap={};jStages.forEach(s=>sMap[s.id]=s.stage_name);
+    const h=['Touchpoint','Stage','Channel','Type','Audience','Market','Owner','Status','Go-live','End','CTA','Message angle'];
+    const rows=allTPs.map(tp=>[tp.touchpoint_name,sMap[tp.stage_id]||'',tp.channel,tp.touchpoint_type,(tp.audience||[]).join('; '),(tp.market||[]).join('; '),tp.owner,tp.status,tp.go_live_date,tp.end_date||'',tp.cta_label||'',tp.message_angle||'']);
+    const csv=[h,...rows].map(r=>r.map(c=>`"${(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`${activeJ?.journey_name||'journey'}.csv`;a.click();
+  };
+
+  const exportPDF=()=>{
+    const el=document.getElementById('pdf-capture');
+    if(!el)return;
+    const fileName=`${activeJ?.journey_name||'journey'}.pdf`;
+    const opt={
+      margin:[10,8,10,8],
+      filename:fileName,
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,scrollX:0,scrollY:0,windowWidth:el.scrollWidth+40},
+      jsPDF:{unit:'mm',format:'a3',orientation:'landscape'},
+      pagebreak:{mode:['avoid-all','css','legacy']}
+    };
+    // Briefly show a generating indicator
+    const btn=document.activeElement;if(btn)btn.textContent='Generating…';
+    html2pdf().set(opt).from(el).save().then(()=>{if(btn)btn.textContent='Export PDF'}).catch(()=>{if(btn)btn.textContent='Export PDF'});
+  };
+
+  const views=[{k:'matrix',l:'Journey map'},{k:'timeline',l:'Timeline'},{k:'gaps',l:'Gaps'}];
+
+  return(<div style={{minHeight:'100vh',background:'var(--g25)'}}>
+    <div style={{borderBottom:'1px solid var(--g200)',padding:'10px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',background:'white',position:'sticky',top:0,zIndex:100}}>
+      <div style={{display:'flex',alignItems:'center',gap:12}}>
+        <button onClick={()=>{if(data.journeys.length)setPage('journey');else setPage('home')}} style={{fontWeight:800,fontSize:15,background:'none',color:'var(--bk)',padding:0}}>Journey action plan</button>
+        <div style={{width:1,height:20,background:'var(--g200)'}}/>
+        <button onClick={()=>setPage('library')} style={{padding:'5px 12px',borderRadius:6,fontSize:13,fontWeight:600,background:page==='library'?'var(--g100)':'transparent',color:page==='library'?'var(--bk)':'var(--g500)'}}>Past campaigns</button>
+        {data.journeys.length>0&&<div style={{display:'flex',gap:3,background:'var(--g50)',borderRadius:8,padding:3}}>
+          {data.journeys.map(j=><button key={j.id} onClick={()=>{setActiveJId(j.id);setPage('journey')}} style={{padding:'4px 12px',borderRadius:5,fontSize:12,fontWeight:600,background:page==='journey'&&j.id===activeJId?'white':'transparent',color:page==='journey'&&j.id===activeJId?'var(--bk)':'var(--g500)',boxShadow:page==='journey'&&j.id===activeJId?'0 1px 3px rgba(0,0,0,.1)':'none',maxWidth:180,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{j.journey_name}</button>)}
+        </div>}
+        <button onClick={()=>setJModal({open:true,journey:{}})} style={{padding:'4px 10px',borderRadius:6,background:'transparent',color:'var(--g400)',border:'1.5px dashed var(--g300)',fontSize:12,fontWeight:600}}>+ New</button>
+        <button onClick={()=>setImportModal(true)} style={{padding:'4px 10px',borderRadius:6,background:'transparent',color:'var(--g400)',border:'1.5px dashed var(--g300)',fontSize:12,fontWeight:600}}>📥 Import</button>
+      </div>
+      <div style={{display:'flex',gap:6,alignItems:'center'}}>
+        {page==='journey'&&activeJ&&<>
+          <button onClick={exportPDF} style={{padding:'5px 12px',borderRadius:6,background:'var(--g50)',border:'1px solid var(--g200)',fontSize:12,fontWeight:600,color:'var(--g600)'}}>Export PDF</button>
+          <button onClick={exportCSV} style={{padding:'5px 12px',borderRadius:6,background:'var(--g50)',border:'1px solid var(--g200)',fontSize:12,fontWeight:600,color:'var(--g600)'}}>Export CSV</button>
+          <button onClick={()=>deleteJ(activeJId)} style={{padding:'5px 12px',borderRadius:6,background:'#FEE2E2',border:'1px solid #FECACA',fontSize:12,fontWeight:600,color:'#991B1B'}}>Delete</button>
+        </>}
+      </div>
+    </div>
+
+    <div style={{padding:'20px 20px 60px',maxWidth:1500,margin:'0 auto'}}>
+      {page==='home'&&<HomePage onNew={()=>setJModal({open:true,journey:{}})} onGoLibrary={()=>setPage('library')} onImport={()=>setImportModal(true)}/>}
+      {page==='library'&&<LibraryPage library={data.library} onClone={cloneFromLib} onPreview={j=>setPreviewModal({open:true,journey:j})}/>}
+      {page==='journey'&&activeJ&&<div id="pdf-capture">
+        <JourneyHeader journey={activeJ} stages={jStages} touchpoints={allTPs} onEdit={()=>setJModal({open:true,journey:activeJ})} onEditStages={()=>setStageModal(true)}/>
+        <div className="no-print" style={{display:'flex',gap:0,marginBottom:14,borderBottom:'2px solid var(--g100)'}}>{views.map(v=><button key={v.k} onClick={()=>setView(v.k)} style={{padding:'9px 18px',fontSize:13,fontWeight:600,background:'transparent',color:view===v.k?'var(--bk)':'var(--g500)',borderBottom:view===v.k?'2px solid var(--bk)':'2px solid transparent',marginBottom:-2}}>{v.l}</button>)}</div>
+        <div className="no-print"><FiltersBar filters={filters} setFilters={setFilters} touchpoints={allTPs}/></div>
+        {view==='matrix'&&<MatrixView stages={jStages} touchpoints={filteredTPs} onClickTP={tp=>setTpModal({open:true,tp})} onAddTP={openAddTP}/>}
+        {view==='timeline'&&<TimelineView touchpoints={filteredTPs} stages={jStages} onClickTP={tp=>setTpModal({open:true,tp})}/>}
+        {view==='gaps'&&<GapsView stages={jStages} touchpoints={allTPs}/>}
+      </div>}
+      {page==='journey'&&!activeJ&&<HomePage onNew={()=>setJModal({open:true,journey:{}})} onGoLibrary={()=>setPage('library')} onImport={()=>setImportModal(true)}/>}
+    </div>
+
+    <TPModal tp={tpModal.tp} open={tpModal.open} onClose={()=>setTpModal({open:false,tp:null})} onSave={saveTP} onDelete={deleteTP} stages={jStages}/>
+    <JourneyModal journey={jModal.journey} open={jModal.open} onClose={()=>setJModal({open:false,journey:null})} onSave={saveJ}/>
+    <StageModal stages={jStages} open={stageModal} onClose={()=>setStageModal(false)} onSave={saveStages} journeyId={activeJId}/>
+    <LibPreviewModal journey={previewModal.journey} library={data.library} open={previewModal.open} onClose={()=>setPreviewModal({open:false,journey:null})} onClone={cloneFromLib}/>
+    <ImportModal open={importModal} onClose={()=>setImportModal(false)} onImport={importJourney}/>
+  </div>);
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
