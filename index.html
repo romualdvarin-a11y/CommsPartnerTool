@@ -7,23 +7,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bk:#111;--wh:#FFF;--g25:#FAFAFA;--g50:#F5F5F5;--g100:#EBEBEB;--g200:#E0E0E0;
-  --g300:#CCC;--g400:#B0B0B0;--g500:#8A8A8A;--g600:#636363;--g700:#3D3D3D;
-  --blue:#3B82F6;--blue-l:#DBEAFE;--blue-d:#1E40AF;
-  --green:#10B981;--green-l:#D1FAE5;--green-d:#065F46;
-  --orange:#F59E0B;--orange-l:#FEF3C7;--orange-d:#92400E;
-  --red:#EF4444;--red-l:#FEE2E2;--red-d:#991B1B;
-  --purple:#8B5CF6;--purple-l:#EDE9FE;--purple-d:#5B21B6;
-  --pink:#EC4899;--pink-l:#FCE7F3;--pink-d:#9D174D;
-  --teal:#14B8A6;--teal-l:#CCFBF1;--teal-d:#115E59;
-  --indigo:#6366F1;--indigo-l:#E0E7FF;--indigo-d:#3730A3;
-  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-  --r:10px;--sh:0 4px 12px rgba(0,0,0,.08);--sh-lg:0 12px 40px rgba(0,0,0,.12);
+  --bk:#050505;--wh:#FFFFFF;--g25:#F9F9F9;--g50:#F5F5F5;--g100:#E8E8E8;--g200:#E0E0E0;
+  --g300:#CCCCCC;--g400:#B8B8B8;--g500:#8F8F8F;--g600:#616161;--g700:#3D3D3D;
+  --blue:#3275C4;--blue-l:#C6E6FB;--blue-d:#093B75;
+  --green:#2F95A0;--green-l:#C8FFEC;--green-d:#0D5563;
+  --orange:#C5A635;--orange-l:#FAFFA4;--orange-d:#705208;
+  --red:#CE6033;--red-l:#FFC9A6;--red-d:#7A250C;
+  --purple:#7B4DB8;--purple-l:#D5C8FF;--purple-d:#461068;
+  --pink:#C24B89;--pink-l:#FFDFEA;--pink-d:#7E0F4C;
+  --teal:#2F95A0;--teal-l:#C8FFEC;--teal-d:#0D5563;
+  --indigo:#7B4DB8;--indigo-l:#D5C8FF;--indigo-d:#461068;
+  --font:'Manrope',Arial,sans-serif;
+  --r:10px;--sh:0 4px 12px rgba(0,0,0,.06);--sh-lg:0 12px 40px rgba(0,0,0,.10);
 }
 body{font-family:var(--font);background:var(--g25);color:var(--bk);font-size:14px;font-weight:500;line-height:1.5}
 button{font-family:var(--font);cursor:pointer;font-weight:500;font-size:13px;border:none}
@@ -33,10 +33,10 @@ input,select,textarea{font-family:var(--font);font-size:14px;font-weight:500}
 ::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .2s ease-out}
-.tip{display:flex;gap:8px;padding:10px 14px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;font-size:12px;color:#0369A1;line-height:1.5;margin-bottom:16px;align-items:flex-start}
+.tip{display:flex;gap:8px;padding:10px 14px;background:#C6E6FB33;border:1px solid #9BC5EA;border-radius:10px;font-size:12px;color:#093B75;line-height:1.5;margin-bottom:16px;align-items:flex-start}
 .tip b{font-weight:700}
 .tip .ico{flex-shrink:0;font-size:14px;margin-top:1px}
-.warn{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
+.warn{background:#FAFFA466;border-color:#F5F596;color:#705208}
 @media print{body{background:white!important;font-size:11px!important}
 .no-print{display:none!important}
 .print-only{display:block!important}
@@ -48,7 +48,7 @@ input,select,textarea{font-family:var(--font);font-size:14px;font-weight:500}
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const{useState,useCallback,useMemo,useEffect,useRef}=React;
+const{useState,useMemo,useEffect}=React;
 
 // ─── Constants ───
 const GOAL_TYPES=['awareness','consideration','acquisition','activation','adoption','expansion','retention'];
@@ -73,30 +73,30 @@ const TP_TYPES_GTM=['Email (outbound)','Push notification','In-app message','SMS
 const TP_TYPES_UX=['Onboarding screen','Feature discovery (tooltip, spotlight)','Empty state prompt','In-product upsell','Dashboard widget','In-app notification (bell)','Settings / activation gate','Feature confirmation screen','Eligibility check flow','Success state'];
 const TP_TYPES_INT=['Sales/CS training','Enablement deck','Internal FAQ / playbook','Support macro'];
 const CH_COLORS={
-  'CRM / Email':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Push notification':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
-  'In-app (Braze)':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},'Website':{bg:'#D1FAE5',t:'#065F46',d:'#10B981'},
-  'SEO':{bg:'#CCFBF1',t:'#115E59',d:'#14B8A6'},'Paid Ads':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
-  'Video':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Social (organic)':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},
-  'Event':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Enablement (internal)':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},
-  'Community':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Sales':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},
-  'Customer Support':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},'Affiliate / Comparator':{bg:'#E0E7FF',t:'#3730A3',d:'#6366F1'},
-  'PR':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},'Partner':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},
-  'In-product (UX step)':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},
+  'CRM / Email':{bg:'#FAFFA4',t:'#705208',d:'#C5A635'},'Push notification':{bg:'#FFDFEA',t:'#7E0F4C',d:'#C24B89'},
+  'In-app (Braze)':{bg:'#C6E6FB',t:'#093B75',d:'#3275C4'},'Website':{bg:'#C8FFEC',t:'#0D5563',d:'#2F95A0'},
+  'SEO':{bg:'#C8FFEC',t:'#0D5563',d:'#66C8C8'},'Paid Ads':{bg:'#FFC9A6',t:'#7A250C',d:'#CE6033'},
+  'Video':{bg:'#D5C8FF',t:'#461068',d:'#7B4DB8'},'Social (organic)':{bg:'#FFDFEA',t:'#7E0F4C',d:'#E975B2'},
+  'Event':{bg:'#D5C8FF',t:'#461068',d:'#A585DB'},'Enablement (internal)':{bg:'#FFC9A6',t:'#7A250C',d:'#FF9E75'},
+  'Community':{bg:'#FAFFA4',t:'#705208',d:'#F0E060'},'Sales':{bg:'#FFC9A6',t:'#7A250C',d:'#CE6033'},
+  'Customer Support':{bg:'#FFC9A6',t:'#7A250C',d:'#FFB590'},'Affiliate / Comparator':{bg:'#D5C8FF',t:'#461068',d:'#7B4DB8'},
+  'PR':{bg:'#D5C8FF',t:'#461068',d:'#A585DB'},'Partner':{bg:'#C6E6FB',t:'#093B75',d:'#71A5E0'},
+  'In-product (UX step)':{bg:'#C6E6FB',t:'#093B75',d:'#3275C4'},
   // Notion aliases
-  'In-product':{bg:'#DBEAFE',t:'#1E40AF',d:'#3B82F6'},'Website/SEO':{bg:'#D1FAE5',t:'#065F46',d:'#10B981'},
-  'CRM':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},'Paid ads':{bg:'#FCE7F3',t:'#9D174D',d:'#EC4899'},
-  'Sales/CSD/BPO':{bg:'#FEE2E2',t:'#991B1B',d:'#EF4444'},'Social':{bg:'#FEF3C7',t:'#92400E',d:'#F59E0B'},
-  'Product':{bg:'#EDE9FE',t:'#5B21B6',d:'#8B5CF6'},
+  'In-product':{bg:'#C6E6FB',t:'#093B75',d:'#3275C4'},'Website/SEO':{bg:'#C8FFEC',t:'#0D5563',d:'#2F95A0'},
+  'CRM':{bg:'#FAFFA4',t:'#705208',d:'#C5A635'},'Paid ads':{bg:'#FFC9A6',t:'#7A250C',d:'#CE6033'},
+  'Sales/CSD/BPO':{bg:'#FFC9A6',t:'#7A250C',d:'#CE6033'},'Social':{bg:'#FFDFEA',t:'#7E0F4C',d:'#E975B2'},
+  'Product':{bg:'#D5C8FF',t:'#461068',d:'#7B4DB8'},
 };
 const ST={
-  not_started:{bg:'#F5F5F5',t:'#8A8A8A',l:'Not started'},planned:{bg:'#DBEAFE',t:'#1E40AF',l:'Planned'},
-  in_progress:{bg:'#FEF3C7',t:'#92400E',l:'In progress'},done:{bg:'#D1FAE5',t:'#065F46',l:'Done'},
-  blocker:{bg:'#FEE2E2',t:'#991B1B',l:'Blocker'},
+  not_started:{bg:'#F5F5F5',t:'#8F8F8F',l:'Not started'},planned:{bg:'#C6E6FB',t:'#093B75',l:'Planned'},
+  in_progress:{bg:'#FAFFA4',t:'#705208',l:'In progress'},done:{bg:'#C8FFEC',t:'#0D5563',l:'Done'},
+  blocker:{bg:'#FFC9A6',t:'#7A250C',l:'Blocker'},
   // Notion aliases
-  'To do':{bg:'#F5F5F5',t:'#8A8A8A',l:'To do'},'In progress':{bg:'#FEF3C7',t:'#92400E',l:'In progress'},
-  'Done':{bg:'#D1FAE5',t:'#065F46',l:'Done'},
+  'To do':{bg:'#F5F5F5',t:'#8F8F8F',l:'To do'},'In progress':{bg:'#FAFFA4',t:'#705208',l:'In progress'},
+  'Done':{bg:'#C8FFEC',t:'#0D5563',l:'Done'},
 };
-const STAGE_C=['#3B82F6','#8B5CF6','#EC4899','#F59E0B','#10B981','#14B8A6','#6366F1','#EF4444','#F97316','#06B6D4'];
+const STAGE_C=['#71A5E0','#A585DB','#E975B2','#F0E060','#66C8C8','#FF9E75','#3275C4','#7B4DB8','#C24B89','#C5A635'];
 
 // ─── Helpers ───
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
@@ -206,8 +206,45 @@ function parseCSV(text){
 }
 
 // ─── Seed data ───
+function createMyCampaign(){
+  const j1Id='my_cashback';
+  const createUniversalStages=(journeyId)=>[
+    {id:`${journeyId}_enablement`,journey_id:journeyId,stage_name:'Enablement & Readiness',stage_goal:'Internal prep: legal, FAQ, CS/Sales training, internal comms, tracking — ensure teams are ready before go-live',position:1},
+    {id:`${journeyId}_awareness`,journey_id:journeyId,stage_name:'Awareness',stage_goal:'Move audience from unaware to problem-aware — PR, social, paid brand, video, community, employee advocacy',position:2},
+    {id:`${journeyId}_consideration`,journey_id:journeyId,stage_name:'Consideration',stage_goal:'Educate on solution fit — SEO, blog, LP, case studies, comparators, templates to build product awareness',position:3},
+    {id:`${journeyId}_conversion`,journey_id:journeyId,stage_name:'Conversion',stage_goal:'Convert interest into action — CRM outbound, retargeting, push, lead nurture, pricing, promo offers',position:4},
+    {id:`${journeyId}_activation`,journey_id:journeyId,stage_name:'Activation',stage_goal:'Guide to first key action in-product — Braze, feature discovery, onboarding, setup checklist, welcome flows',position:5},
+    {id:`${journeyId}_adoption`,journey_id:journeyId,stage_name:'Adoption',stage_goal:'Build repeated usage & expand value — lifecycle automations, upsell CRM, cross-sell, empty state prompts',position:6},
+    {id:`${journeyId}_retention`,journey_id:journeyId,stage_name:'Retention & Advocacy',stage_goal:'Reduce churn & deepen loyalty — re-engagement, win-back, feedback surveys, community advocacy',position:7},
+  ];
+  const s1=createUniversalStages(j1Id);
+  const t1=[
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Help Center update (FAQ)',channel:'Enablement (internal)',touchpoint_type:'Enablement doc',audience:['client','internal'],market:['Global'],owner:'CS team',status:'done',go_live_date:'2026-04-24',end_date:'2026-05-06',message_angle:'Cashback rules, payout, exclusions'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Sales/CSD training session',channel:'Enablement (internal)',touchpoint_type:'Sales/CS training',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-29',end_date:'2026-05-06',message_angle:'Cashback as acquisition lever'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Measurement & tracking setup',channel:'In-product (UX step)',touchpoint_type:'Dashboard',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'UTMs and events reflect journey'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_awareness`,touchpoint_name:'Community post(s)',channel:'Community',touchpoint_type:'Post',audience:['client'],market:['Global'],owner:'Community manager',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Reminder + how it works'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_awareness`,touchpoint_name:'Social post(s)',channel:'Social (organic)',touchpoint_type:'Post',audience:['prospect','client'],market:['Global'],owner:'Social team',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Cashback teaser, launch, deep dive'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'New cashback landing page',channel:'Website',touchpoint_type:'LP',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-06',end_date:'2026-05-06',message_angle:'Earn cashback on eligible card spend'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Pricing page update',channel:'Website',touchpoint_type:'Pricing line',audience:['prospect'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback rate and cap depend on card level'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Card page callouts & banners',channel:'Website',touchpoint_type:'Card page module, Banners',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback visible on card pages'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Comparator pages (SEO)',channel:'SEO',touchpoint_type:'UI screen',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Clear, comparable cashback story'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Comparator pages update',channel:'SEO',touchpoint_type:'Comparator line',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Updated comparator positioning'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Static ad assets',channel:'Paid Ads',touchpoint_type:'Ad static',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback on eligible spend'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Card animations',channel:'Paid Ads',touchpoint_type:'Ad animation',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Earn cashback with your card'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Retargeting ads (cashback)',channel:'Paid Ads',touchpoint_type:'Paid ad',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is available with your card'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Lead nurture email(s)',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['prospect'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Earn cashback on eligible spend'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'In-app discovery message (Braze)',channel:'In-app (Braze)',touchpoint_type:'In-app message',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is now active'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'In-product education touchpoint',channel:'In-product (UX step)',touchpoint_type:'Feature discovery',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Explain cashback in-product'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'Cashback details page (in-app)',channel:'In-product (UX step)',touchpoint_type:'Feature confirmation screen',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Rate, cap, timing, exclusions'},
+    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_adoption`,touchpoint_name:'CRM upsell plan: one-shots + lifecycle',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['client'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Target cohorts with clear cashback rules'},
+  ];
+  t1.forEach(tp=>{tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note=''});
+  const j1={id:j1Id,journey_name:'Cashback — X/Plus cards — Q2 2026',goal_type:['acquisition','adoption'],persona_type:'both',segment:['Micro','Small','Medium'],markets:['🇩🇪 DE','🇪🇸 ES','🇳🇱 NL'],status:'in_progress',start_date:'2026-04-06',end_date:'2026-06-30',owner:'PMM team',messaging_angle:'Your card spend, rewarded — effortless cashback on every transaction',guardrails:'Avoid teasing future rate changes. Cap disclosure required on paid channels.',eligibility_notes:'X and Plus card holders only.'};
+  return{journeys:[j1],stages:[...s1],touchpoints:[...t1]};
+}
+
 function createLibrary(){
-  const j1Id='lib_cashback',j2Id='lib_onboarding',j3Id='lib_winback',j4Id='lib_ddc',j5Id='lib_closethegap';
+  const j2Id='lib_onboarding',j3Id='lib_winback',j4Id='lib_ddc';
   
   // ─── Universal 7-stage framework (shared across all campaigns) ───
   const createUniversalStages=(journeyId)=>[
@@ -220,36 +257,6 @@ function createLibrary(){
     {id:`${journeyId}_retention`,journey_id:journeyId,stage_name:'Retention & Advocacy',stage_goal:'Reduce churn & deepen loyalty — re-engagement, win-back, feedback surveys, community advocacy',position:7},
   ];
   
-  const s1=createUniversalStages(j1Id);
-  const t1=[
-    // Enablement & Readiness
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Help Center update (FAQ)',channel:'Enablement (internal)',touchpoint_type:'Enablement doc',audience:['client','internal'],market:['Global'],owner:'CS team',status:'done',go_live_date:'2026-04-24',end_date:'2026-05-06',message_angle:'Cashback rules, payout, exclusions'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Sales/CSD training session',channel:'Enablement (internal)',touchpoint_type:'Sales/CS training',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-29',end_date:'2026-05-06',message_angle:'Cashback as acquisition lever'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_enablement`,touchpoint_name:'Measurement & tracking setup',channel:'In-product (UX step)',touchpoint_type:'Dashboard',audience:['internal'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'UTMs and events reflect journey'},
-    // Awareness
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_awareness`,touchpoint_name:'Community post(s)',channel:'Community',touchpoint_type:'Post',audience:['client'],market:['Global'],owner:'Community manager',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Reminder + how it works'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_awareness`,touchpoint_name:'Social post(s)',channel:'Social (organic)',touchpoint_type:'Post',audience:['prospect','client'],market:['Global'],owner:'Social team',status:'done',go_live_date:'2026-05-07',end_date:'2026-05-31',message_angle:'Cashback teaser, launch, deep dive'},
-    // Consideration
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'New cashback landing page',channel:'Website',touchpoint_type:'LP',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-06',end_date:'2026-05-06',message_angle:'Earn cashback on eligible card spend'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Pricing page update',channel:'Website',touchpoint_type:'Pricing line',audience:['prospect'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback rate and cap depend on card level'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Card page callouts & banners',channel:'Website',touchpoint_type:'Card page module, Banners',audience:['prospect','client'],market:['Global'],owner:'Website team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback visible on card pages'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Comparator pages (SEO)',channel:'SEO',touchpoint_type:'UI screen',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Clear, comparable cashback story'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_consideration`,touchpoint_name:'Comparator pages update',channel:'SEO',touchpoint_type:'Comparator line',audience:['prospect'],market:['Global'],owner:'SEO team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Updated comparator positioning'},
-    // Conversion
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Static ad assets',channel:'Paid Ads',touchpoint_type:'Ad static',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback on eligible spend'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Card animations',channel:'Paid Ads',touchpoint_type:'Ad animation',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-08',end_date:'2026-05-06',message_angle:'Earn cashback with your card'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Retargeting ads (cashback)',channel:'Paid Ads',touchpoint_type:'Paid ad',audience:['prospect'],market:['Global'],owner:'Paid team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is available with your card'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_conversion`,touchpoint_name:'Lead nurture email(s)',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['prospect'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Earn cashback on eligible spend'},
-    // Activation
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'In-app discovery message (Braze)',channel:'In-app (Braze)',touchpoint_type:'In-app message',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Cashback is now active'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'In-product education touchpoint',channel:'In-product (UX step)',touchpoint_type:'Feature discovery',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Explain cashback in-product'},
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_activation`,touchpoint_name:'Cashback details page (in-app)',channel:'In-product (UX step)',touchpoint_type:'Feature confirmation screen',audience:['client'],market:['Global'],owner:'PMM',status:'done',go_live_date:'2026-04-22',end_date:'2026-05-06',message_angle:'Rate, cap, timing, exclusions'},
-    // Adoption
-    {id:uid(),journey_id:j1Id,stage_id:`${j1Id}_adoption`,touchpoint_name:'CRM upsell plan: one-shots + lifecycle',channel:'CRM / Email',touchpoint_type:'Email (outbound)',audience:['client'],market:['Global'],owner:'CRM team',status:'done',go_live_date:'2026-04-15',end_date:'2026-05-06',message_angle:'Target cohorts with clear cashback rules'},
-  ];
-  t1.forEach(tp=>{tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note=''});
-  const j1={id:j1Id,journey_name:'Cashback — X/Plus cards — Q2 2026',goal_type:['acquisition','adoption'],persona_type:'both',segment:['Micro','Small','Medium'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL'],status:'completed',start_date:'2026-04-06',end_date:'2026-06-30',owner:'PMM team',messaging_angle:'Your card spend, rewarded — effortless cashback on every transaction',guardrails:'Avoid teasing future rate changes. Cap disclosure required on paid channels.',eligibility_notes:'X and Plus card holders only.',is_template:true,template_category:'Product launch',template_description:'18 touchpoints across 7 universal evergreen stages. Comprehensive feature launch using the shared stage framework for cross-campaign consistency.'};
-
   const s2=createUniversalStages(j2Id);
   const t2=[
     // Consideration
@@ -322,60 +329,24 @@ function createLibrary(){
     // Retention & Advocacy
     {id:uid(),journey_id:j4Id,stage_id:`${j4Id}_retention`,touchpoint_name:'User feedback collection',channel:'Enablement (internal)',audience:['client'],owner:'PMM',status:'done',go_live_date:'2026-02-11',market:['🇫🇷 FR','🇩🇪 DE']},
   ];
-  t4.forEach(tp=>{tp.touchpoint_type='';tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
+  t4.forEach(tp=>{tp.touchpoint_type='';tp.team=[];tp.validated='validated';tp.kick_off_date='';tp.eta_deliverables='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note=''});
+  // Enrich DDC touchpoints with real message angles from Notion
+  const ddcAngles={'Teaser post':'You asked. We listened. It\'s almost here.','Launch social':'Your cash flow just got a major upgrade — Qonto\'s first-ever Credit Card.','Press release':'Qonto launches Credit Card and Overdraft to help SMEs manage cash flow gaps.','Paid ads':'Spend now, settle later — Qonto Credit Card.','2 one-shot':'Exclusive: you\'re eligible for the Credit Card — order yours now.','launch pop-up':'Discover your new Credit Card — spend now, settle next month.','higher-limit':'Credit up to €15,000/month — spend without touching your balance.','Push notification':'Not everyone qualifies. You do. Order yours now.','SEO blog':'How business credit cards work — informational + SEO.','Lifecycle':'Your exclusive invite to get access to the credit card.','feedback':'Tell us about your experience with the Credit Card.','Sales expansion':'Contact feature requestors for upsell.','What\'s New':'New: Credit Card now available — pay now, settle later.','Cards page':'Credit Card available — switch between debit and credit mode.','Follow-up':'Why a credit card is useful for your business.'};
+  t4.forEach(tp=>{const n=tp.touchpoint_name;tp.message_angle=n.includes('Teaser')?ddcAngles['Teaser post']:n.includes('Launch social')||n.includes('Launch post')?ddcAngles['Launch social']:n.includes('Press')?ddcAngles['Press release']:n.includes('Paid')?ddcAngles['Paid ads']:n.includes('one-shot')?ddcAngles['2 one-shot']:n.includes('launch pop-up')?ddcAngles['launch pop-up']:n.includes('higher-limit')?ddcAngles['higher-limit']:n.includes('Push')?ddcAngles['Push notification']:n.includes('SEO')?ddcAngles['SEO blog']:n.includes('Lifecycle')?ddcAngles['Lifecycle']:n.includes('feedback')?ddcAngles['feedback']:n.includes('Sales expansion')?ddcAngles['Sales expansion']:n.includes('What\'s New')?ddcAngles['What\'s New']:n.includes('Cards page')?ddcAngles['Cards page']:n.includes('Follow-up')?ddcAngles['Follow-up']:n.includes('FAQ')?'Credit Card rules, eligibility, usage, limits':n.includes('Legal')?'Disclaimer & compliance review for all credit comms':n.includes('training')?'Credit Card + Overdraft product training':n.includes('Journal')?'Internal launch announcement':n.includes('Launch day')?'Company-wide launch celebration':n.includes('1-pager')?'Quick reference for Sales & CSD teams':n.includes('Employee LinkedIn')?'Personal advocacy posts for launch reach':n.includes('Community')?'Credit Card community announcement':'';if(!tp.end_date){tp.end_date=n.includes('Teaser')?'2026-01-22':n.includes('Launch social')?'2026-02-12':n.includes('Press')?'2026-01-22':n.includes('one-shot')?'2026-02-20':n.includes('launch pop-up')?'2026-02-23':n.includes('higher-limit')?'2026-02-27':n.includes('Push')?'2026-02-12':n.includes('SEO')?'2026-03-15':n.includes('Lifecycle')?'2026-04-30':n.includes('Paid')?'2026-03-31':''}});
   const j4={id:j4Id,journey_name:'DDC (Financial Cushioning) — Credit Card + Overdraft — Q1 2026',goal_type:['acquisition','adoption','expansion'],persona_type:'existing_client',segment:['Solo','Micro','Small'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT'],status:'completed',start_date:'2026-01-06',end_date:'2026-03-31',owner:'PMM team',messaging_angle:'Pay what matters on time, without sweating your cash flow — financial cushioning from Credit Card + Overdraft',guardrails:'Legal disclaimer required on all credit-related comms. FR: use "carte à débit différé", DE: use "Kreditkarte". Never say "free credit".',eligibility_notes:'Eligible existing customers only — criteria similar to Pay Later.',is_template:true,template_category:'Bundle GTM',template_description:'25 touchpoints across 7 universal evergreen stages. Two-phase bundle GTM using shared framework for consistency across campaigns.'};
 
-  const s5=createUniversalStages(j5Id);
-  const t5=[
-    // Enablement & Readiness
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_enablement`,touchpoint_name:'FAQ creation / update (Help Center)',channel:'Customer Support',audience:['client'],owner:'CS',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
-    // Awareness
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_awareness`,touchpoint_name:'Executive bylined article / op-ed',channel:'PR',audience:['prospect'],owner:'PR',status:'not_started',go_live_date:'2026-04-30',market:['🇫🇷 FR','🇩🇪 DE']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_awareness`,touchpoint_name:'Press release — Payment Links (IT & ES)',channel:'PR',audience:['prospect'],owner:'PR',status:'not_started',go_live_date:'2026-04-30',market:['🇮🇹 IT','🇪🇸 ES']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_awareness`,touchpoint_name:'Topical educational video (SDD)',channel:'Video',audience:['prospect','client'],owner:'Comms Partner',status:'in_progress',go_live_date:'2026-04-30',market:['🇩🇪 DE','🇫🇷 FR','Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_awareness`,touchpoint_name:'LinkedIn post / slide carousel',channel:'Social (organic)',audience:['prospect','client'],owner:'Social Media',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_awareness`,touchpoint_name:'Paid ads (campaign-level)',channel:'Paid Ads',audience:['prospect'],owner:'Paid Acquisition',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    // Consideration
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Landing page: new creation or revamp',channel:'Website',audience:['prospect','client'],owner:'Website + SEO',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'FAQ section updates on LP',channel:'Website',audience:['prospect','client'],owner:'SEO',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Blog #1 — "Close the Gap: how to get paid faster"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Blog #2 — "SDD vs. bank transfer"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['🇩🇪 DE','🇫🇷 FR','🇳🇱 NL']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Blog #3 — "Payment Links: let clients choose"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-05-07',market:['🇮🇹 IT','🇪🇸 ES','Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Customer case study — Frédéric (all-in-one flow)',channel:'Website',audience:['prospect'],owner:'PMM',status:'not_started',go_live_date:'2026-04-30',market:['🇫🇷 FR','Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Resource: invoice template / payment terms template',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Resource: SDD mandate template',channel:'SEO',audience:['prospect','client'],owner:'SEO',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Blog #4 — "What to do when clients won\'t pay"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-05-30',market:['🇫🇷 FR','🇩🇪 DE']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_consideration`,touchpoint_name:'Blog #5 — "Invoice financing: close the cash flow gap"',channel:'SEO',audience:['prospect'],owner:'SEO',status:'not_started',go_live_date:'2026-06-30',market:['Global']},
-    // Conversion
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_conversion`,touchpoint_name:'Email: one-shot (leads) — acquisition angle',channel:'CRM / Email',audience:['prospect'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_conversion`,touchpoint_name:'Email: one-shot (customers) — "Invoice with us, get paid with us" + promo',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_conversion`,touchpoint_name:'Push notification — AR Add-on promo + Payment Links',channel:'Push notification',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_conversion`,touchpoint_name:'Newsletter block — "Close the Gap" feature',channel:'CRM / Email',audience:['client'],owner:'PMM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    // Activation
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_activation`,touchpoint_name:'Knowledge Hub explainer video',channel:'In-product (UX step)',audience:['client'],owner:'PMM',status:'not_started',go_live_date:'2026-04-28',market:['Global']},
-    // Adoption
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_adoption`,touchpoint_name:'Lifecycle automations — AR → Payment Links / SDD nudges',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-04-30',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_adoption`,touchpoint_name:'Email: "When things go sideways" — Debt Collection + Invoice Financing',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-06-01',market:['Global']},
-    // Retention & Advocacy
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_retention`,touchpoint_name:'Community post — "How do you collect payments?"',channel:'Community',audience:['client'],owner:'Community',status:'not_started',go_live_date:'2026-05-05',market:['Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_retention`,touchpoint_name:'Demo video — "Send invoice → get paid in 3 clicks"',channel:'Community',audience:['client'],owner:'PMM + Community',status:'not_started',go_live_date:'2026-05-05',market:['🇫🇷 FR','Global']},
-    {id:uid(),journey_id:j5Id,stage_id:`${j5Id}_retention`,touchpoint_name:'Customer survey — adoption feedback',channel:'CRM / Email',audience:['client'],owner:'CRM',status:'not_started',go_live_date:'2026-06-01',market:['Global']},
-  ];
-  t5.forEach(tp=>{tp.touchpoint_type='';tp.team=[];tp.validated=tp.status==='done'?'validated':'tbd';tp.kick_off_date='';tp.eta_deliverables='';tp.end_date='';tp.asset_link='';tp.cta_label='';tp.variant='';tp.market_override=false;tp.market_override_note='';tp.message_angle=''});
-  const j5={id:j5Id,journey_name:'Close the Gap — Get Paid suite — Q2 2026',goal_type:['adoption','acquisition','expansion'],persona_type:'both',segment:['Solo','Micro','Small'],markets:['🇫🇷 FR','🇩🇪 DE','🇪🇸 ES','🇳🇱 NL','🇮🇹 IT'],status:'planned',start_date:'2026-04-28',end_date:'2026-06-30',owner:'PMM team',messaging_angle:'Close the gap between invoice and payment — one platform to create quotes, issue invoices and collect payments instantly',guardrails:'SDD mandate template must be reviewed by Legal per market. AR Add-on promo: 1 month free + 2 months if payment collected.',eligibility_notes:'All Qonto users. AR Add-on promo available to new subscribers only.',is_template:true,template_category:'Adoption campaign',template_description:'26 touchpoints across 7 universal evergreen stages. Multi-product adoption narrative using shared stage framework.'};
-
-  return{journeys:[j1,j2,j3,j4,j5],stages:[...s1,...s2,...s3,...s4,...s5],touchpoints:[...t1,...t2,...t3,...t4,...t5]};
+  return{journeys:[j2,j3,j4],stages:[...s2,...s3,...s4],touchpoints:[...t2,...t3,...t4]};
 }
 
 
-function initData(){return{journeys:[],stages:[],touchpoints:[],results:[],library:createLibrary()}}
+function initData(){const my=createMyCampaign();return{journeys:my.journeys,stages:my.stages,touchpoints:my.touchpoints,results:[],library:createLibrary()}}
 
 // ─── UI primitives ───
 function Pill({label,bg,color,dot,small,onClick,active}){
-  return(<span onClick={onClick} style={{display:'inline-flex',alignItems:'center',gap:4,padding:small?'2px 8px':'4px 10px',borderRadius:20,fontSize:small?11:12,fontWeight:600,background:active===false?'transparent':bg||'#F5F5F5',color:color||'#636363',border:active===false?`1.5px solid ${bg||'#E0E0E0'}`:'1.5px solid transparent',cursor:onClick?'pointer':'default',whiteSpace:'nowrap',transition:'all .15s',userSelect:'none'}}>{dot&&<span style={{width:7,height:7,borderRadius:'50%',background:dot,flexShrink:0}}/>}{label}</span>);
+  return(<span onClick={onClick} style={{display:'inline-flex',alignItems:'center',gap:4,padding:small?'2px 8px':'4px 10px',borderRadius:20,fontSize:small?11:12,fontWeight:600,background:active===false?'transparent':bg||'#F5F5F5',color:color||'#616161',border:active===false?`1.5px solid ${bg||'#E0E0E0'}`:'1.5px solid transparent',cursor:onClick?'pointer':'default',whiteSpace:'nowrap',transition:'all .15s',userSelect:'none'}}>{dot&&<span style={{width:7,height:7,borderRadius:'50%',background:dot,flexShrink:0}}/>}{label}</span>);
 }
 function StatusBadge({status}){const s=ST[status]||ST.not_started;return<Pill label={s.l} bg={s.bg} color={s.t} small/>}
-function ChannelBadge({channel}){const c=CH_COLORS[channel]||{bg:'#F5F5F5',t:'#636363',d:'#8A8A8A'};return<Pill label={channel} bg={c.bg} color={c.t} dot={c.d} small/>}
+function ChannelBadge({channel}){const c=CH_COLORS[channel]||{bg:'#F5F5F5',t:'#616161',d:'#8F8F8F'};return<Pill label={channel} bg={c.bg} color={c.t} dot={c.d} small/>}
 function Tip({children,warn,icon}){return<div className={`tip${warn?' warn':''}`}><span className="ico">{icon||(warn?'⚠️':'💡')}</span><div>{children}</div></div>}
 
 // ─── Modal ───
@@ -386,7 +357,7 @@ function Modal({open,onClose,title,width,children}){
 
 // ─── Form helpers ───
 function Field({label,required,children,hint}){
-  return(<div style={{marginBottom:14}}><label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--g500)',marginBottom:4,textTransform:'uppercase',letterSpacing:'.6px'}}>{label}{required&&<span style={{color:'#EF4444'}}> *</span>}</label>{children}{hint&&<span style={{fontSize:11,color:'var(--g400)',marginTop:2,display:'block'}}>{hint}</span>}</div>);
+  return(<div style={{marginBottom:14}}><label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--g500)',marginBottom:4,textTransform:'uppercase',letterSpacing:'.6px'}}>{label}{required&&<span style={{color:'#CE6033'}}> *</span>}</label>{children}{hint&&<span style={{fontSize:11,color:'var(--g400)',marginTop:2,display:'block'}}>{hint}</span>}</div>);
 }
 const inpS={width:'100%',padding:'8px 12px',borderRadius:8,border:'1.5px solid var(--g200)',background:'white',outline:'none',fontSize:14,fontWeight:500,fontFamily:'var(--font)'};
 function ChipSelect({options,value,onChange}){
@@ -396,13 +367,13 @@ function ChipSelect({options,value,onChange}){
 
 // ─── Touchpoint card ───
 function TPCard({tp,onClick,compact}){
-  const cc=CH_COLORS[tp.channel]||{bg:'#F5F5F5',t:'#636363',d:'#8A8A8A'};
+  const cc=CH_COLORS[tp.channel]||{bg:'#F5F5F5',t:'#616161',d:'#8F8F8F'};
   return(<div onClick={onClick} style={{background:'white',border:'1px solid var(--g200)',borderRadius:10,padding:compact?10:12,cursor:'pointer',transition:'all .15s',borderLeft:`3px solid ${cc.d}`}} onMouseEnter={e=>{e.currentTarget.style.boxShadow='var(--sh)';e.currentTarget.style.borderColor=cc.d}} onMouseLeave={e=>{e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor='var(--g200)';e.currentTarget.style.borderLeftColor=cc.d}}>
     <div style={{fontSize:13,fontWeight:600,marginBottom:6,lineHeight:1.35}}>{tp.touchpoint_name}</div>
     <div style={{display:'flex',flexWrap:'wrap',gap:4,marginBottom:6}}><ChannelBadge channel={tp.channel}/></div>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:11,color:'var(--g500)'}}><span>{tp.owner||'—'}</span>{tp.go_live_date&&<span style={{display:'inline-flex',alignItems:'center',gap:3,padding:'2px 7px',borderRadius:6,background:'#EFF6FF',color:'#1E40AF',fontWeight:600,fontSize:10}}>📅 {fmtD(tp.go_live_date)}{tp.end_date&&` → ${fmtD(tp.end_date)}`}</span>}</div>
-    {tp.market_override&&<div style={{marginTop:4,fontSize:10,color:'#92400E',fontWeight:700,background:'#FEF3C7',padding:'1px 6px',borderRadius:8,display:'inline-block'}}>Market override: {tp.market?.join(', ')}</div>}
-    {!compact&&<div style={{display:'flex',gap:3,marginTop:4}}>{tp.audience?.map(a=><span key={a} style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:a==='prospect'?'#EDE9FE':a==='client'?'#DBEAFE':'#FEF3C7',color:a==='prospect'?'#5B21B6':a==='client'?'#1E40AF':'#92400E',fontWeight:600}}>{a}</span>)}</div>}
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:11,color:'var(--g500)'}}><span>{tp.owner||'—'}</span>{tp.go_live_date&&<span style={{display:'inline-flex',alignItems:'center',gap:3,padding:'2px 7px',borderRadius:6,background:'#C6E6FB44',color:'#093B75',fontWeight:600,fontSize:10}}>📅 {fmtD(tp.go_live_date)}{tp.end_date&&` → ${fmtD(tp.end_date)}`}</span>}</div>
+    {tp.market_override&&<div style={{marginTop:4,fontSize:10,color:'#705208',fontWeight:700,background:'#FAFFA4',padding:'1px 6px',borderRadius:8,display:'inline-block'}}>Market override: {tp.market?.join(', ')}</div>}
+    {!compact&&<div style={{display:'flex',gap:3,marginTop:4}}>{tp.audience?.map(a=><span key={a} style={{fontSize:10,padding:'1px 6px',borderRadius:10,background:a==='prospect'?'#D5C8FF':a==='client'?'#C6E6FB':'#FAFFA4',color:a==='prospect'?'#461068':a==='client'?'#093B75':'#705208',fontWeight:600}}>{a}</span>)}</div>}
   </div>);
 }
 
@@ -423,14 +394,16 @@ function TPModal({tp,open,onClose,onSave,onDelete,stages}){
     </button>)}
   </div>
 </Field></div>
+      <Field label="Channel" required hint="Where does this touchpoint live?"><select style={inpS} value={form.channel||''} onChange={e=>set('channel',e.target.value)}><option value="">Select channel…</option>{CHANNELS.map(c=><option key={c} value={c}>{c}</option>)}</select></Field>
       <Field label="Touchpoint type" hint="Specific format: email, tooltip, paid ad…"><select style={inpS} value={form.touchpoint_type||''} onChange={e=>set('touchpoint_type',e.target.value)}><option value="">Select…</option><optgroup label="GTM Comms">{TP_TYPES_GTM.map(t=><option key={t} value={t}>{t}</option>)}</optgroup><optgroup label="UX / In-product">{TP_TYPES_UX.map(t=><option key={t} value={t}>{t}</option>)}</optgroup><optgroup label="Internal">{TP_TYPES_INT.map(t=><option key={t} value={t}>{t}</option>)}</optgroup></select></Field>
-      <Field label="Owner" required hint="Person responsible for delivery"><input style={inpS} value={form.owner||''} onChange={e=>set('owner',e.target.value)}/></Field>
+      <Field label="Owner" hint="Person responsible for delivery"><input style={inpS} value={form.owner||''} onChange={e=>set('owner',e.target.value)}/></Field>
       <Field label="Audience" required hint="Who sees this touchpoint?"><ChipSelect options={AUDIENCES} value={form.audience||[]} onChange={v=>set('audience',v)}/></Field>
       <Field label="Audience detail" hint="e.g. 'Plus card holders', 'Construction leads'"><input style={inpS} value={form.audience_detail||''} onChange={e=>set('audience_detail',e.target.value)}/></Field>
       <Field label="Market" hint="Inherits from journey by default"><ChipSelect options={MARKETS} value={form.market||[]} onChange={v=>set('market',v)}/></Field>
+      <Field label="Status" required hint="Current progress"><select style={inpS} value={form.status||'not_started'} onChange={e=>set('status',e.target.value)}>{TP_STATUSES.map(s=>{const st=ST[s]||{l:s};return<option key={s} value={s}>{st.l||s}</option>})}</select></Field>
       <Field label="Validated" hint="Has this been signed off?"><select style={inpS} value={form.validated||'tbd'} onChange={e=>set('validated',e.target.value)}>{VALIDATED.map(s=><option key={s} value={s}>{s}</option>)}</select></Field>
-      <div style={{gridColumn:'1/-1',padding:'12px 14px',background:'#EFF6FF',borderRadius:10,border:'1px solid #BFDBFE',marginBottom:14}}>
-        <div style={{fontSize:11,fontWeight:700,color:'#1E40AF',textTransform:'uppercase',letterSpacing:'.6px',marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📅 Dates & timeline</div>
+      <div style={{gridColumn:'1/-1',padding:'12px 14px',background:'#C6E6FB44',borderRadius:10,border:'1px solid #9BC5EA',marginBottom:14}}>
+        <div style={{fontSize:11,fontWeight:700,color:'#093B75',textTransform:'uppercase',letterSpacing:'.6px',marginBottom:8,display:'flex',alignItems:'center',gap:5}}>📅 Dates & timeline</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0 16px'}}>
           <Field label="Go-live date" required hint="When users first see this"><input type="date" style={{...inpS,background:'white'}} value={form.go_live_date||''} onChange={e=>set('go_live_date',e.target.value)}/></Field>
           <Field label="End date" hint="Leave blank if evergreen"><input type="date" style={{...inpS,background:'white'}} value={form.end_date||''} onChange={e=>set('end_date',e.target.value)}/></Field>
@@ -445,7 +418,7 @@ function TPModal({tp,open,onClose,onSave,onDelete,stages}){
       <Field label="Variant" hint="A/B label if applicable"><input style={inpS} value={form.variant||''} onChange={e=>set('variant',e.target.value)}/></Field>
     </div>
     <div style={{display:'flex',justifyContent:'space-between',marginTop:16,paddingTop:14,borderTop:'1px solid var(--g100)'}}>
-      <div>{form.id&&onDelete&&<button onClick={()=>{onDelete(form.id);onClose()}} style={{padding:'8px 16px',borderRadius:8,background:'#FEE2E2',color:'#991B1B',fontWeight:600}}>Delete</button>}</div>
+      <div>{form.id&&onDelete&&<button onClick={()=>{onDelete(form.id);onClose()}} style={{padding:'8px 16px',borderRadius:8,background:'#FFC9A6',color:'#7A250C',fontWeight:600}}>Delete</button>}</div>
       <div style={{display:'flex',gap:8}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Cancel</button><button onClick={()=>{onSave(form);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Save</button></div>
     </div>
   </Modal>);
@@ -488,7 +461,7 @@ function StageModal({stages,open,onClose,onSave,journeyId}){
   return(<Modal open={open} onClose={onClose} title="Edit stages" width={680}>
     <Tip>Stages define the phases of your customer journey. Reorder them to match your narrative. Each touchpoint belongs to exactly one stage.</Tip>
     <div style={{display:'flex',flexDirection:'column',gap:6}}>
-      {list.map((s,i)=>(<div key={s.id||i} style={{display:'flex',gap:8,alignItems:'center',padding:8,background:'var(--g25)',borderRadius:8,border:'1px solid var(--g100)'}}><span style={{fontWeight:700,fontSize:12,color:'var(--g400)',width:20,textAlign:'center'}}>{i+1}</span><input style={{...inpS,flex:1}} value={s.stage_name} onChange={e=>up(i,'stage_name',e.target.value)} placeholder="Stage name"/><input style={{...inpS,flex:1.5}} value={s.stage_goal||''} onChange={e=>up(i,'stage_goal',e.target.value)} placeholder="What does success look like?"/><button onClick={()=>mv(i,-1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↑</button><button onClick={()=>mv(i,1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↓</button><button onClick={()=>rm(i)} style={{background:'#FEE2E2',borderRadius:6,width:26,height:26,fontSize:13,color:'#991B1B'}}>×</button></div>))}
+      {list.map((s,i)=>(<div key={s.id||i} style={{display:'flex',gap:8,alignItems:'center',padding:8,background:'var(--g25)',borderRadius:8,border:'1px solid var(--g100)'}}><span style={{fontWeight:700,fontSize:12,color:'var(--g400)',width:20,textAlign:'center'}}>{i+1}</span><input style={{...inpS,flex:1}} value={s.stage_name} onChange={e=>up(i,'stage_name',e.target.value)} placeholder="Stage name"/><input style={{...inpS,flex:1.5}} value={s.stage_goal||''} onChange={e=>up(i,'stage_goal',e.target.value)} placeholder="What does success look like?"/><button onClick={()=>mv(i,-1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↑</button><button onClick={()=>mv(i,1)} style={{background:'var(--g100)',borderRadius:6,width:26,height:26,fontSize:13}}>↓</button><button onClick={()=>rm(i)} style={{background:'#FFC9A6',borderRadius:6,width:26,height:26,fontSize:13,color:'#7A250C'}}>×</button></div>))}
     </div>
     <button onClick={add} style={{marginTop:10,padding:'8px 16px',borderRadius:8,background:'var(--g50)',border:'1.5px dashed var(--g300)',color:'var(--g600)',fontWeight:600,width:'100%'}}>+ Add stage</button>
     <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16,paddingTop:14,borderTop:'1px solid var(--g100)'}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)'}}>Cancel</button><button onClick={()=>{onSave(list);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Save stages</button></div>
@@ -528,7 +501,7 @@ function ImportModal({open,onClose,onImport}){
     <Tip icon="📥"><b>Import from Notion or CSV.</b> Paste data from your Notion database or a CSV export. The tool will auto-detect the format and map fields to the journey model.</Tip>
 
     {/* Notion-specific tip */}
-    <div className="tip" style={{background:'#F5F3FF',borderColor:'#C4B5FD',color:'#5B21B6'}}>
+    <div className="tip" style={{background:'#D5C8FF33',borderColor:'#BFA6EA',color:'#461068'}}>
       <span className="ico">🔮</span>
       <div>
         <b>Easiest way to import from Notion:</b> Ask Claude — <i>"Import the Notion database at [paste your Notion URL] into my journey tool"</i>. Claude will fetch the data, transform it, and give you the JSON to paste here.
@@ -547,16 +520,16 @@ function ImportModal({open,onClose,onImport}){
       <textarea style={{...inpS,minHeight:180,resize:'vertical',fontFamily:'monospace',fontSize:12}} value={raw} onChange={e=>{setRaw(e.target.value);setErr('');setPreview(null)}} placeholder={tab==='csv'?'Touchpoint,Phase,Channel,Status,Owner\n"Landing page update",Acquisition,Website/SEO,To do,Romuald\n...':'[\n  {"Touchpoint": "Landing page", "Phase": "Acquisition", "Channel": "[\\\"Website/SEO\\\"]", "Status": "To do", ...},\n  ...\n]'}/>
     </Field>
 
-    {err&&<div style={{padding:'8px 12px',background:'#FEE2E2',borderRadius:8,color:'#991B1B',fontSize:13,marginBottom:12}}>Error: {err}</div>}
+    {err&&<div style={{padding:'8px 12px',background:'#FFC9A6',borderRadius:8,color:'#7A250C',fontSize:13,marginBottom:12}}>Error: {err}</div>}
 
     {!preview&&<button onClick={tryParse} disabled={!raw.trim()} style={{padding:'8px 20px',borderRadius:8,background:raw.trim()?'var(--bk)':'var(--g200)',color:raw.trim()?'white':'var(--g400)',fontWeight:600,marginBottom:16}}>Preview import</button>}
 
     {preview&&(<div className="fade-in">
-      <div style={{padding:12,background:'#D1FAE5',borderRadius:10,marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
+      <div style={{padding:12,background:'#C8FFEC',borderRadius:10,marginBottom:16,display:'flex',gap:12,alignItems:'center'}}>
         <span style={{fontSize:20}}>✅</span>
         <div>
-          <div style={{fontWeight:700,color:'#065F46'}}>Parsed successfully</div>
-          <div style={{fontSize:13,color:'#065F46'}}>{preview.stages.length} stages · {preview.touchpoints.length} touchpoints · Source: {preview.source}</div>
+          <div style={{fontWeight:700,color:'#0D5563'}}>Parsed successfully</div>
+          <div style={{fontSize:13,color:'#0D5563'}}>{preview.stages.length} stages · {preview.touchpoints.length} touchpoints · Source: {preview.source}</div>
         </div>
       </div>
       <div style={{maxHeight:200,overflow:'auto',border:'1px solid var(--g200)',borderRadius:8,marginBottom:16}}>
@@ -585,7 +558,7 @@ function MatrixView({stages,touchpoints,onClickTP,onAddTP}){
     <div style={{display:'grid',gridTemplateColumns:`150px repeat(${stages.length},minmax(200px,1fr))`,gap:1,background:'var(--g200)',borderRadius:12,overflow:'hidden',border:'1px solid var(--g200)'}}>
       <div style={{background:'var(--g50)',padding:'10px 14px',fontWeight:700,fontSize:11,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'.5px'}}>Channel</div>
       {stages.map(s=><div key={s.id} style={{background:'var(--g50)',padding:'10px 14px',fontWeight:700,fontSize:11,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'.5px'}}>{s.stage_name}</div>)}
-      {displayCh.map(ch=>{const cc=CH_COLORS[ch]||{d:'#8A8A8A'};return(<React.Fragment key={ch}><div style={{background:'white',padding:'10px 12px',display:'flex',alignItems:'flex-start',gap:5,fontSize:12,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,marginTop:4,flexShrink:0}}/>{ch}</div>{stages.map(stage=>{const tps=touchpoints.filter(tp=>tp.stage_id===stage.id&&tp.channel===ch);return(<div key={`${ch}-${stage.id}`} style={{background:'white',padding:6,minHeight:56,display:'flex',flexDirection:'column',gap:5}}>{tps.map(tp=><TPCard key={tp.id} tp={tp} onClick={()=>onClickTP(tp)} compact/>)}{tps.length===0&&<button onClick={()=>onAddTP(stage.id,ch)} style={{width:'100%',height:'100%',minHeight:40,background:'transparent',border:'1.5px dashed var(--g200)',borderRadius:8,color:'var(--g400)',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--g400)';e.currentTarget.style.background='var(--g25)'}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--g200)';e.currentTarget.style.background='transparent'}}>+</button>}</div>)})}</React.Fragment>)})}
+      {displayCh.map(ch=>{const cc=CH_COLORS[ch]||{d:'#8F8F8F'};return(<React.Fragment key={ch}><div style={{background:'white',padding:'10px 12px',display:'flex',alignItems:'flex-start',gap:5,fontSize:12,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,marginTop:4,flexShrink:0}}/>{ch}</div>{stages.map(stage=>{const tps=touchpoints.filter(tp=>tp.stage_id===stage.id&&tp.channel===ch);return(<div key={`${ch}-${stage.id}`} style={{background:'white',padding:6,minHeight:56,display:'flex',flexDirection:'column',gap:5}}>{tps.map(tp=><TPCard key={tp.id} tp={tp} onClick={()=>onClickTP(tp)} compact/>)}{tps.length===0&&<button onClick={()=>onAddTP(stage.id,ch)} style={{width:'100%',height:'100%',minHeight:40,background:'transparent',border:'1.5px dashed var(--g200)',borderRadius:8,color:'var(--g400)',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--g400)';e.currentTarget.style.background='var(--g25)'}} onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--g200)';e.currentTarget.style.background='transparent'}}>+</button>}</div>)})}</React.Fragment>)})}
     </div>
   </div>);
 }
@@ -596,7 +569,7 @@ function TimelineView({touchpoints,stages,onClickTP}){
   let lastDate='';
   return(<div style={{maxWidth:780}}>
     {sorted.length>0&&<Tip icon="📅">Touchpoints are ordered by go-live date. Click any card to view or edit its details.</Tip>}
-    {sorted.map(tp=>{const d=tp.go_live_date;const showDate=d!==lastDate;lastDate=d;const cc=CH_COLORS[tp.channel]||{d:'#8A8A8A'};return(<div key={tp.id} style={{display:'flex',gap:14,marginBottom:2}}><div style={{width:80,textAlign:'right',paddingTop:12,fontSize:13,fontWeight:600,color:showDate?'var(--bk)':'transparent'}}>{fmtD(d)}</div><div style={{display:'flex',flexDirection:'column',alignItems:'center',width:18}}><div style={{width:10,height:10,borderRadius:'50%',background:cc.d,marginTop:14,zIndex:1}}/><div style={{width:2,flex:1,background:'var(--g200)',marginTop:-2}}/></div><div style={{flex:1,paddingBottom:6}}><TPCard tp={tp} onClick={()=>onClickTP(tp)} compact/></div></div>)})}
+    {sorted.map(tp=>{const d=tp.go_live_date;const showDate=d!==lastDate;lastDate=d;const cc=CH_COLORS[tp.channel]||{d:'#8F8F8F'};return(<div key={tp.id} style={{display:'flex',gap:14,marginBottom:2}}><div style={{width:80,textAlign:'right',paddingTop:12,fontSize:13,fontWeight:600,color:showDate?'var(--bk)':'transparent'}}>{fmtD(d)}</div><div style={{display:'flex',flexDirection:'column',alignItems:'center',width:18}}><div style={{width:10,height:10,borderRadius:'50%',background:cc.d,marginTop:14,zIndex:1}}/><div style={{width:2,flex:1,background:'var(--g200)',marginTop:-2}}/></div><div style={{flex:1,paddingBottom:6}}><TPCard tp={tp} onClick={()=>onClickTP(tp)} compact/></div></div>)})}
     {sorted.length===0&&<Tip warn>No touchpoints have go-live dates yet. Add dates to your touchpoints to see the timeline view.</Tip>}
   </div>);
 }
@@ -610,11 +583,11 @@ function GapsView({stages,touchpoints}){
     <Tip icon="🔍"><b>Gaps analysis</b> shows which stage × channel combinations have no touchpoint yet. Some gaps are intentional — not every channel needs to be active at every stage. Use this to spot unintentional blind spots in your plan.</Tip>
     <h3 style={{fontSize:15,fontWeight:700,marginBottom:12}}>Coverage by stage</h3>
     <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:24}}>
-      {coverage.map(({stage,count})=><div key={stage.id} style={{padding:'14px 18px',borderRadius:12,border:'1px solid var(--g200)',background:count===0?'#FEE2E2':count<3?'#FEF3C7':'#D1FAE5',minWidth:130,textAlign:'center'}}><div style={{fontSize:22,fontWeight:800}}>{count}</div><div style={{fontSize:12,fontWeight:600,color:'var(--g600)',marginTop:2}}>{stage.stage_name}</div></div>)}
+      {coverage.map(({stage,count})=><div key={stage.id} style={{padding:'14px 18px',borderRadius:12,border:'1px solid var(--g200)',background:count===0?'#FFC9A6':count<3?'#FAFFA4':'#C8FFEC',minWidth:130,textAlign:'center'}}><div style={{fontSize:22,fontWeight:800}}>{count}</div><div style={{fontSize:12,fontWeight:600,color:'var(--g600)',marginTop:2}}>{stage.stage_name}</div></div>)}
     </div>
     <h3 style={{fontSize:15,fontWeight:700,marginBottom:12}}>Channel × stage gaps ({gaps.length})</h3>
-    {gaps.length===0?<div style={{padding:20,background:'#D1FAE5',borderRadius:12,color:'#065F46',fontWeight:600,textAlign:'center'}}>Full coverage — no gaps across active channels and stages.</div>:
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:6}}>{gaps.map((g,i)=>{const cc=CH_COLORS[g.channel]||{d:'#8A8A8A'};return<div key={i} style={{padding:'8px 12px',borderRadius:8,border:'1.5px dashed var(--g300)',background:'var(--g25)',display:'flex',alignItems:'center',gap:8,fontSize:13}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,flexShrink:0}}/><span><strong>{g.channel}</strong> in <strong>{g.stage.stage_name}</strong></span></div>})}</div>}
+    {gaps.length===0?<div style={{padding:20,background:'#C8FFEC',borderRadius:12,color:'#0D5563',fontWeight:600,textAlign:'center'}}>Full coverage — no gaps across active channels and stages.</div>:
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:6}}>{gaps.map((g,i)=>{const cc=CH_COLORS[g.channel]||{d:'#8F8F8F'};return<div key={i} style={{padding:'8px 12px',borderRadius:8,border:'1.5px dashed var(--g300)',background:'var(--g25)',display:'flex',alignItems:'center',gap:8,fontSize:13}}><span style={{width:7,height:7,borderRadius:'50%',background:cc.d,flexShrink:0}}/><span><strong>{g.channel}</strong> in <strong>{g.stage.stage_name}</strong></span></div>})}</div>}
   </div>);
 }
 
@@ -630,7 +603,7 @@ function FiltersBar({filters,setFilters,touchpoints}){
     </div>
     <div style={{display:'flex',flexWrap:'wrap',gap:5,alignItems:'center',marginTop:6}}>
       <span style={{fontSize:11,fontWeight:700,color:'var(--g500)',marginRight:2,textTransform:'uppercase',letterSpacing:'.5px'}}>Audience:</span>
-      {AUDIENCES.map(a=>{const active=filters.audiences.length===0||filters.audiences.includes(a);return<Pill key={a} label={a} bg={a==='prospect'?'#EDE9FE':a==='client'?'#DBEAFE':'#FEF3C7'} color={a==='prospect'?'#5B21B6':a==='client'?'#1E40AF':'#92400E'} small onClick={()=>toggle('audiences',a)} active={active}/>})}
+      {AUDIENCES.map(a=>{const active=filters.audiences.length===0||filters.audiences.includes(a);return<Pill key={a} label={a} bg={a==='prospect'?'#D5C8FF':a==='client'?'#C6E6FB':'#FAFFA4'} color={a==='prospect'?'#461068':a==='client'?'#093B75':'#705208'} small onClick={()=>toggle('audiences',a)} active={active}/>})}
       {hasF&&<button onClick={()=>setFilters({channels:[],audiences:[],markets:[]})} style={{padding:'2px 10px',borderRadius:20,background:'var(--g100)',color:'var(--g600)',fontSize:11,fontWeight:600,marginLeft:8}}>Clear all</button>}
     </div>
   </div>);
@@ -638,15 +611,15 @@ function FiltersBar({filters,setFilters,touchpoints}){
 
 // ─── Journey header ───
 function JourneyHeader({journey,stages,touchpoints,onEdit,onEditStages}){
-  const stC={draft:'var(--g50)',planned:'#DBEAFE',live:'#D1FAE5',completed:'#EDE9FE'};
-  const stT={draft:'var(--g500)',planned:'#1E40AF',live:'#065F46',completed:'#5B21B6'};
+  const stC={draft:'var(--g50)',planned:'#C6E6FB',live:'#C8FFEC',completed:'#D5C8FF'};
+  const stT={draft:'var(--g500)',planned:'#093B75',live:'#0D5563',completed:'#461068'};
   const total=touchpoints.length;
   return(<div style={{marginBottom:20}}>
     <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:16,marginBottom:12}}>
       <div>
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}><h1 style={{fontSize:22,fontWeight:800}}>{journey.journey_name}</h1><Pill label={journey.status} bg={stC[journey.status]} color={stT[journey.status]}/></div>
         <div style={{display:'flex',flexWrap:'wrap',gap:6,fontSize:13,color:'var(--g600)'}}><span>{total} touchpoints</span><span>·</span><span>{stages.length} stages</span><span>·</span><span>{fmtD(journey.start_date)} – {fmtD(journey.end_date)}</span><span>·</span><span>{journey.owner}</span></div>
-        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}}>{journey.markets?.map(m=><Pill key={m} label={m} bg="var(--g50)" color="var(--g600)" small/>)}{journey.segment?.map(s=><Pill key={s} label={s} bg="var(--g50)" color="var(--g600)" small/>)}{(journey.goal_type||[]).map(g=><Pill key={g} label={g} bg="#E0E7FF" color="#3730A3" small/>)}</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:6}}>{journey.markets?.map(m=><Pill key={m} label={m} bg="var(--g50)" color="var(--g600)" small/>)}{journey.segment?.map(s=><Pill key={s} label={s} bg="var(--g50)" color="var(--g600)" small/>)}{(journey.goal_type||[]).map(g=><Pill key={g} label={g} bg="#D5C8FF" color="#461068" small/>)}</div>
       </div>
       <div style={{display:'flex',gap:6,flexShrink:0}}>
         <button onClick={onEditStages} style={{padding:'7px 14px',borderRadius:8,background:'var(--g50)',border:'1px solid var(--g200)',color:'var(--g600)',fontWeight:600,fontSize:13}}>Stages</button>
@@ -654,14 +627,295 @@ function JourneyHeader({journey,stages,touchpoints,onEdit,onEditStages}){
       </div>
     </div>
     {journey.messaging_angle&&<div style={{marginTop:4,padding:'9px 14px',background:'var(--g25)',borderRadius:8,fontSize:13,color:'var(--g600)',borderLeft:'3px solid var(--g300)'}}><strong style={{color:'var(--bk)'}}>Messaging angle:</strong> {journey.messaging_angle}</div>}
-    {journey.guardrails&&<div style={{marginTop:6,padding:'9px 14px',background:'#FFFBEB',borderRadius:8,fontSize:13,color:'#92400E',borderLeft:'3px solid #FDE68A'}}><strong>Guardrails:</strong> {journey.guardrails}</div>}
+    {journey.guardrails&&<div style={{marginTop:6,padding:'9px 14px',background:'#FAFFA466',borderRadius:8,fontSize:13,color:'#705208',borderLeft:'3px solid #F5F596'}}><strong>Guardrails:</strong> {journey.guardrails}</div>}
+  </div>);
+}
+
+// ─── Journey map view (visual stage-column layout) ───
+// Inline date editor — click TBC dates to set them with date pickers
+function JMDateEditor({tp,onUpdate}){
+  const[editing,setEditing]=useState(false);
+  const[startVal,setStartVal]=useState('');
+  const[endVal,setEndVal]=useState('');
+  const open=()=>{setStartVal(tp.go_live_date||'');setEndVal(tp.end_date||'');setEditing(true)};
+  const save=(e)=>{e.stopPropagation();onUpdate({...tp,go_live_date:startVal||'',end_date:endVal||''});setEditing(false)};
+  const cancel=(e)=>{e.stopPropagation();setEditing(false)};
+  if(editing){
+    return(<div onClick={e=>e.stopPropagation()} style={{display:'flex',gap:3,alignItems:'center',flexWrap:'wrap',padding:'3px 0'}}>
+      <input type="date" value={startVal} onChange={e=>setStartVal(e.target.value)} style={{fontSize:10,fontFamily:'var(--font)',fontWeight:600,padding:'2px 4px',border:'1.5px solid var(--blue)',borderRadius:4,width:110,background:'var(--blue-l)',color:'var(--blue-d)'}}/>
+      <span style={{fontSize:10,color:'var(--g400)'}}>to</span>
+      <input type="date" value={endVal} onChange={e=>setEndVal(e.target.value)} style={{fontSize:10,fontFamily:'var(--font)',fontWeight:600,padding:'2px 4px',border:'1.5px solid var(--blue)',borderRadius:4,width:110,background:'var(--blue-l)',color:'var(--blue-d)'}}/>
+      <button onClick={save} style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:4,border:'none',background:'var(--bk)',color:'white',cursor:'pointer',fontFamily:'var(--font)'}}>OK</button>
+      <button onClick={cancel} style={{fontSize:10,fontWeight:600,padding:'2px 6px',borderRadius:4,border:'1px solid var(--g300)',background:'white',color:'var(--g500)',cursor:'pointer',fontFamily:'var(--font)'}}>✕</button>
+    </div>);
+  }
+  const hasDate=tp.go_live_date;
+  return(<span onClick={e=>{e.stopPropagation();open()}} title="Click to set date" style={{fontSize:10,fontWeight:600,padding:'1px 6px',borderRadius:4,background:hasDate?'var(--g50)':'var(--blue-l)',color:hasDate?'var(--g600)':'var(--blue-d)',fontStyle:hasDate?'normal':'italic',cursor:'pointer',border:hasDate?'1px solid transparent':'1px dashed var(--blue)',transition:'all .12s'}}>
+    {hasDate?fmtD(tp.go_live_date)+(tp.end_date&&tp.end_date!==tp.go_live_date?' – '+fmtD(tp.end_date):''):'TBC (click to set)'}
+  </span>);
+}
+
+// Inline status toggle — click to cycle through statuses
+function JMStatusToggle({tp,onUpdate}){
+  const CYCLE=['not_started','planned','in_progress','done'];
+  const toggle=(e)=>{e.stopPropagation();const i=CYCLE.indexOf(tp.status);const next=CYCLE[(i+1)%CYCLE.length];onUpdate({...tp,status:next})};
+  const s=ST[tp.status]||ST.not_started;
+  const isDone=tp.status==='done'||tp.status==='in_progress';
+  return(<span onClick={toggle} title="Click to toggle status" style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:4,background:s.bg,color:s.t,display:'inline-flex',alignItems:'center',gap:3,cursor:'pointer',transition:'all .12s',border:isDone?'1px solid transparent':'1px dashed '+s.t+'66'}}>
+    <span style={{width:5,height:5,borderRadius:5,background:isDone?'#34A853':'#71A5E0',display:'inline-block'}}/>
+    {s.l}
+  </span>);
+}
+
+function JourneyMapView({journey,stages,touchpoints,onClickTP,onUpdateTP}){
+  const [audFilter,setAudFilter]=useState('all');
+  const [hoveredTp,setHoveredTp]=useState(null);
+  const [changeCount,setChangeCount]=useState(0);
+
+  // Persist inline edits through the main data model
+  const updateTP=(updated)=>{if(onUpdateTP){onUpdateTP(updated);setChangeCount(c=>c+1)}};
+
+  // Filter by audience
+  const filtered=useMemo(()=>{
+    if(audFilter==='all')return touchpoints;
+    return touchpoints.filter(tp=>(tp.audience||[]).includes(audFilter));
+  },[touchpoints,audFilter]);
+
+  // Map status to confirmed/tbc for visual display
+  const isConfirmed=(tp)=>tp.status==='done'||tp.status==='in_progress'||tp.validated==='validated';
+
+  // Build stage data with channel grouping
+  const stageData=useMemo(()=>stages.map((stage,i)=>{
+    const tps=filtered.filter(tp=>tp.stage_id===stage.id);
+    const byChannel={};
+    tps.forEach(t=>{(byChannel[t.channel]=byChannel[t.channel]||[]).push(t)});
+    const conf=tps.filter(t=>isConfirmed(t)).length;
+    return{...stage,byChannel,total:tps.length,confirmed:conf,tbc:tps.length-conf,colorIdx:i};
+  }),[filtered,stages]);
+
+  // Audience counts from full touchpoints (not filtered)
+  const prospectCount=touchpoints.filter(t=>(t.audience||[]).includes('prospect')).length;
+  const clientCount=touchpoints.filter(t=>(t.audience||[]).includes('client')).length;
+  const channelsActive=[...new Set(touchpoints.map(t=>t.channel))].length;
+  const confirmedCount=touchpoints.filter(t=>isConfirmed(t)).length;
+  const readinessPct=touchpoints.length>0?Math.round((confirmedCount/touchpoints.length)*100):0;
+
+  // Timeline helpers
+  const datedTPs=filtered.filter(tp=>tp.go_live_date);
+  const allDates=[...datedTPs.map(tp=>new Date(tp.go_live_date+'T00:00:00')),...datedTPs.filter(tp=>tp.end_date).map(tp=>new Date(tp.end_date+'T00:00:00'))].filter(d=>!isNaN(d));
+  const minDate=allDates.length>0?new Date(Math.min(...allDates)):new Date();
+  const maxDate=allDates.length>0?new Date(Math.max(...allDates)):new Date();
+  const tlStart=new Date(minDate);tlStart.setDate(tlStart.getDate()-15);
+  const tlEnd=new Date(maxDate);tlEnd.setDate(tlEnd.getDate()+15);
+  const totalDays=Math.max(Math.round((tlEnd-tlStart)/86400000),30);
+  const pct=(d)=>{if(!d)return null;const diff=Math.round((new Date(d+'T00:00:00')-tlStart)/86400000);return Math.max(0,Math.min(100,(diff/totalDays)*100))};
+
+  // Generate month labels for timeline
+  const months=useMemo(()=>{
+    const ms=[];let cur=new Date(tlStart.getFullYear(),tlStart.getMonth(),1);
+    while(cur<=tlEnd){ms.push({label:cur.toLocaleDateString('en-GB',{month:'short'}),year:cur.getFullYear(),dayOff:Math.max(0,Math.round((cur-tlStart)/86400000))});cur=new Date(cur.getFullYear(),cur.getMonth()+1,1)}
+    return ms;
+  },[tlStart,tlEnd,totalDays]);
+
+  // Channel order for Gantt
+  const channelOrder=useMemo(()=>{
+    const used=[...new Set(filtered.map(t=>t.channel))];
+    return CHANNELS.filter(c=>used.includes(c)).concat(used.filter(c=>!CHANNELS.includes(c)));
+  },[filtered]);
+
+  const stageColor=(tp)=>{const idx=stages.findIndex(s=>s.id===tp.stage_id);return STAGE_C[idx%STAGE_C.length]||'#8F8F8F'};
+
+  return(<div className="fade-in">
+    {/* Audience filter + summary strip */}
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginBottom:14}}>
+      <div style={{display:'flex',gap:6}}>
+        {[{key:'all',label:'All touchpoints',count:touchpoints.length},{key:'prospect',label:'Prospect journey',count:prospectCount},{key:'client',label:'Client journey',count:clientCount}].map(f=>(
+          <button key={f.key} onClick={()=>setAudFilter(f.key)} style={{padding:'5px 14px',borderRadius:20,fontSize:12,fontWeight:700,fontFamily:'var(--font)',cursor:'pointer',transition:'all .15s',border:audFilter===f.key?'2px solid var(--bk)':'1.5px solid var(--g200)',background:audFilter===f.key?'var(--bk)':'white',color:audFilter===f.key?'white':'var(--g600)'}}>{f.label} ({f.count})</button>
+        ))}
+      </div>
+      <div style={{display:'flex',gap:12,fontSize:12,color:'var(--g500)',alignItems:'center'}}>
+        <span><strong style={{color:'var(--bk)'}}>{filtered.length}</strong> touchpoints</span>
+        <span><strong style={{color:'var(--bk)'}}>{channelsActive}</strong> channels</span>
+        <span><strong style={{color:'var(--bk)'}}>{stages.length}</strong> stages</span>
+      </div>
+    </div>
+
+    {/* Unsaved edits indicator */}
+    {changeCount>0&&<div style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:8,marginBottom:10,background:'var(--orange-l)',border:'1px solid #F5F596',fontSize:11,fontWeight:600,color:'var(--orange-d)'}}>
+      <span style={{width:6,height:6,borderRadius:6,background:'var(--orange)'}}/>
+      {changeCount} inline edit{changeCount>1?'s':''} saved
+      <span style={{color:'var(--orange)',fontWeight:500}}>— click TBC dates to update</span>
+    </div>}
+
+    {/* Stage columns */}
+    <div style={{overflowX:'auto',paddingBottom:16}}>
+      {/* Stage headers */}
+      <div style={{display:'flex',gap:6,marginBottom:10,minWidth:stages.length*220}}>
+        {stageData.map((s,i)=>{
+          const c=STAGE_C[i%STAGE_C.length];
+          return(<React.Fragment key={s.id}>
+            <div style={{flex:1,minWidth:200}}>
+              <div style={{background:c+'15',borderRadius:10,padding:'10px 14px',borderLeft:`3px solid ${c}`}}>
+                <div style={{fontSize:13,fontWeight:800,color:c,display:'flex',alignItems:'center',gap:5}}>
+                  <span style={{width:8,height:8,borderRadius:'50%',background:c}}/> {s.stage_name}
+                </div>
+                <div style={{fontSize:11,color:c,opacity:0.7,marginTop:2}}>
+                  {s.total} touchpoint{s.total!==1?'s':''}
+                </div>
+                {s.stage_goal&&<div style={{fontSize:10,color:'var(--g500)',marginTop:3,lineHeight:1.3,fontStyle:'italic'}}>{s.stage_goal}</div>}
+              </div>
+            </div>
+            {i<stageData.length-1&&<div style={{display:'flex',alignItems:'center',flexShrink:0,width:16,color:'var(--g300)',fontSize:16,fontWeight:300}}>›</div>}
+          </React.Fragment>);
+        })}
+      </div>
+
+      {/* Channel cards per stage */}
+      <div style={{display:'flex',gap:6,alignItems:'flex-start',minWidth:stages.length*220}}>
+        {stageData.map((stage,i)=>{
+          return(<React.Fragment key={stage.id}>
+            <div style={{flex:1,minWidth:200,display:'flex',flexDirection:'column',gap:6}}>
+              {Object.entries(stage.byChannel).map(([ch,tps])=>{
+                const cc=CH_COLORS[ch]||{bg:'#F5F5F5',t:'#616161',d:'#8F8F8F'};
+                return(<div key={ch} style={{borderRadius:10,overflow:'hidden',border:`1px solid ${cc.d||'var(--g200)'}22`,background:'white'}}>
+                  <div style={{background:cc.bg||'var(--g50)',padding:'6px 11px',display:'flex',alignItems:'center',gap:5,borderBottom:`1px solid ${cc.d||'var(--g200)'}22`}}>
+                    <span style={{width:6,height:6,borderRadius:'50%',background:cc.d||'#8F8F8F',flexShrink:0}}/>
+                    <span style={{fontSize:11,fontWeight:700,color:cc.t||'var(--g600)',letterSpacing:'0.2px'}}>{ch}</span>
+                  </div>
+                  <div style={{padding:4,display:'flex',flexDirection:'column',gap:3}}>
+                    {tps.map(tp=>{
+                      const conf=isConfirmed(tp);
+                      const isHov=hoveredTp===tp.id;
+                      return(<div key={tp.id}
+                        onMouseEnter={()=>setHoveredTp(tp.id)}
+                        onMouseLeave={()=>setHoveredTp(null)}
+                        style={{padding:'7px 9px',borderRadius:6,cursor:'default',border:'1px solid var(--g200)',background:isHov?'var(--g50)':'var(--g25)',transition:'background .12s'}}>
+                        <div onClick={()=>onClickTP(tp)} style={{fontSize:12,fontWeight:600,lineHeight:1.3,color:'var(--bk)',marginBottom:4,cursor:'pointer'}}>{tp.touchpoint_name}</div>
+                        <div style={{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center'}}>
+                          {(tp.audience||[]).map(a=><span key={a} style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:4,background:a==='prospect'?'#D5C8FF':a==='client'?'#C6E6FB':'#FAFFA4',color:a==='prospect'?'#461068':a==='client'?'#093B75':'#705208'}}>{a}</span>)}
+                          <JMDateEditor tp={tp} onUpdate={updateTP}/>
+                        </div>
+                        {(tp.market||[]).length>0&&<div style={{fontSize:10,color:'var(--g400)',marginTop:3}}>{(tp.market||[]).join(', ')}</div>}
+                        {isHov&&(tp._objective||tp.message_angle)&&<div style={{marginTop:5,padding:'5px 8px',borderRadius:5,background:'var(--g50)',border:'1px solid var(--g100)',fontSize:11,color:'var(--g600)',lineHeight:1.35}}>
+                          {tp._objective&&<><strong style={{color:'var(--bk)'}}>Objective:</strong> {tp._objective}</>}
+                          {tp.message_angle&&<>{tp._objective&&<br/>}<strong style={{color:'var(--bk)'}}>Message:</strong> {tp.message_angle}</>}
+                        </div>}
+                      </div>);
+                    })}
+                  </div>
+                </div>);
+              })}
+              {stage.total===0&&<div style={{padding:20,textAlign:'center',border:'1.5px dashed var(--g200)',borderRadius:10,color:'var(--g400)',fontSize:12}}>No touchpoints{audFilter!=='all'?' for '+audFilter+'s':''}</div>}
+            </div>
+            {i<stageData.length-1&&<div style={{width:16,flexShrink:0}}/>}
+          </React.Fragment>);
+        })}
+      </div>
+    </div>
+
+    {/* Timeline by channel (Gantt) */}
+    {datedTPs.length>0&&<div style={{marginTop:16,padding:'16px 18px',borderRadius:10,background:'white',border:'1px solid var(--g200)'}}>
+      <div style={{fontSize:11,fontWeight:700,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:12}}>Timeline by channel</div>
+      <div style={{display:'grid',gridTemplateColumns:'160px 1fr',gap:0}}>
+        {/* Month header row */}
+        <div style={{borderBottom:'1px solid var(--g200)',paddingBottom:6,marginBottom:2}}>
+          <span style={{fontSize:10,fontWeight:700,color:'var(--g400)'}}>CHANNEL</span>
+        </div>
+        <div style={{position:'relative',borderBottom:'1px solid var(--g200)',paddingBottom:6,marginBottom:2,display:'flex'}}>
+          {months.map((m,mi)=>{
+            const nextOff=mi<months.length-1?months[mi+1].dayOff:totalDays;
+            const span=nextOff-m.dayOff;
+            return(<div key={mi} style={{flex:span,textAlign:'center',borderLeft:mi>0?'1px solid var(--g200)':'none'}}>
+              <span style={{fontSize:11,fontWeight:700,color:'var(--bk)'}}>{m.label}</span>
+            </div>);
+          })}
+        </div>
+
+        {/* Channel rows */}
+        {channelOrder.filter(ch=>filtered.some(t=>t.channel===ch)).map(ch=>{
+          const cc=CH_COLORS[ch]||{d:'#8F8F8F'};
+          const chTps=filtered.filter(t=>t.channel===ch);
+          const dated=chTps.filter(t=>t.go_live_date);
+          const undated=chTps.filter(t=>!t.go_live_date);
+          const rowH=Math.max(dated.length,1)*28+(undated.length>0?22:0)+8;
+          return(<React.Fragment key={ch}>
+            <div style={{display:'flex',alignItems:'flex-start',gap:5,paddingTop:8,borderBottom:'1px solid var(--g100)',paddingBottom:8,minHeight:rowH}}>
+              <span style={{width:7,height:7,borderRadius:'50%',background:cc.d||'#8F8F8F',marginTop:4,flexShrink:0}}/>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:cc.t||'var(--g600)'}}>{ch}</div>
+                <div style={{fontSize:10,color:'var(--g400)'}}>{chTps.length} TP{chTps.length>1?'s':''}</div>
+              </div>
+            </div>
+            <div style={{position:'relative',borderBottom:'1px solid var(--g100)',minHeight:rowH,paddingTop:6}}>
+              {/* Month dividers */}
+              {months.filter(m=>m.dayOff>0).map((m,mi)=><div key={mi} style={{position:'absolute',left:`${(m.dayOff/totalDays)*100}%`,top:0,bottom:0,borderLeft:'1px solid var(--g200)'}}/>)}
+              {/* Dated bars */}
+              {dated.map((tp,idx)=>{
+                const left=pct(tp.go_live_date);
+                const endP=pct(tp.end_date||tp.go_live_date);
+                const barW=Math.max(endP-left+0.8,2.5);
+                const sc=stageColor(tp);
+                const conf=isConfirmed(tp);
+                return(<div key={tp.id} onClick={()=>onClickTP(tp)} style={{position:'absolute',top:idx*28+4,left:`${left}%`,width:`${barW}%`,minWidth:90,height:24,borderRadius:5,background:sc+'18',border:`1.5px solid ${sc}`,display:'flex',alignItems:'center',gap:4,paddingLeft:6,paddingRight:4,overflow:'hidden',zIndex:2,cursor:'pointer'}}>
+                  <span style={{width:6,height:6,borderRadius:6,flexShrink:0,background:sc}}/>
+                  <span style={{fontSize:10,fontWeight:700,color:sc,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',flex:1}}>{tp.touchpoint_name}</span>
+                  <span style={{fontSize:9,fontWeight:600,color:sc,opacity:0.7,whiteSpace:'nowrap',flexShrink:0}}>{fmtD(tp.go_live_date)}</span>
+                </div>);
+              })}
+              {/* Undated TBC chips */}
+              {undated.length>0&&<div style={{position:'absolute',bottom:4,left:4,right:4,display:'flex',gap:4,flexWrap:'wrap'}}>
+                {undated.map(tp=><span key={tp.id} onClick={()=>onClickTP(tp)} style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:4,background:'var(--g50)',border:'1px dashed var(--g300)',color:'var(--blue)',fontStyle:'italic',cursor:'pointer'}}>{tp.touchpoint_name} — TBC</span>)}
+              </div>}
+            </div>
+          </React.Fragment>);
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{display:'flex',gap:16,marginTop:12,alignItems:'center',flexWrap:'wrap'}}>
+        {stages.map((s,i)=><div key={s.id} style={{display:'flex',alignItems:'center',gap:3}}>
+          <div style={{width:8,height:8,borderRadius:2,background:STAGE_C[i%STAGE_C.length]+'25',border:`1px solid ${STAGE_C[i%STAGE_C.length]}`}}/>
+          <span style={{fontSize:10,color:'var(--g500)',fontWeight:600}}>{s.stage_name}</span>
+        </div>)}
+      </div>
+    </div>}
+
+    {/* Summary cards */}
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(170px, 1fr))',gap:8,marginTop:12}}>
+      {[{label:'Prospect journey',value:prospectCount,sub:`${prospectCount} touchpoints`,color:'#461068'},
+        {label:'Client journey',value:clientCount,sub:`${clientCount} touchpoints`,color:'#093B75'},
+        {label:'Channels active',value:channelsActive,sub:`across ${stages.length} stages`,color:'var(--g500)'},
+        {label:'Dated',value:datedTPs.length,sub:`${touchpoints.length-datedTPs.length} TBC`,color:'var(--g500)'}
+      ].map((c,i)=><div key={i} style={{padding:'11px 14px',borderRadius:10,background:'white',border:'1px solid var(--g200)'}}>
+        <div style={{fontSize:11,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.4px',color:c.color,marginBottom:3}}>{c.label}</div>
+        <div style={{fontSize:20,fontWeight:800,color:'var(--bk)'}}>{c.value}</div>
+        <div style={{fontSize:11,color:'var(--g500)'}}>{c.sub}</div>
+      </div>)}
+    </div>
+
+    {/* Messaging & guardrails */}
+    {(journey.messaging_angle||journey.guardrails)&&<div style={{display:'grid',gridTemplateColumns:journey.messaging_angle&&journey.guardrails?'1fr 1fr':'1fr',gap:8,marginTop:12}}>
+      {journey.messaging_angle&&<div style={{padding:'11px 14px',borderRadius:10,background:'white',borderLeft:'3px solid var(--bk)'}}>
+        <div style={{fontSize:10,fontWeight:700,color:'var(--g500)',textTransform:'uppercase',letterSpacing:'0.4px',marginBottom:2}}>Messaging angle</div>
+        <div style={{fontSize:13,color:'var(--bk)',fontWeight:600}}>{journey.messaging_angle}</div>
+      </div>}
+      {journey.guardrails&&<div style={{padding:'11px 14px',borderRadius:10,background:'var(--orange-l)',borderLeft:'3px solid var(--orange)'}}>
+        <div style={{fontSize:10,fontWeight:700,color:'var(--orange-d)',textTransform:'uppercase',letterSpacing:'0.4px',marginBottom:2}}>Guardrails</div>
+        <div style={{fontSize:13,color:'var(--orange-d)',fontWeight:600}}>{journey.guardrails}</div>
+      </div>}
+    </div>}
+
+    {/* Footer hint */}
+    <div style={{textAlign:'center',color:'var(--g400)',fontSize:11,marginTop:12}}>
+      Click touchpoint name to open full editor · Click TBC dates to edit inline · Hover for objectives &amp; key messages
+    </div>
   </div>);
 }
 
 // ─── Library page ───
 function LibraryPage({library,onClone,onPreview}){
   const CAT_ICONS={'Product launch':'🚀','Onboarding':'👋','Retention':'🔄','Bundle GTM':'💳','Adoption campaign':'🔁'};
-  const CAT_C={'Product launch':{bg:'#EDE9FE',t:'#5B21B6'},'Onboarding':{bg:'#DBEAFE',t:'#1E40AF'},'Retention':{bg:'#FEF3C7',t:'#92400E'},'Bundle GTM':{bg:'#FCE7F3',t:'#9D174D'},'Adoption campaign':{bg:'#D1FAE5',t:'#065F46'}};
+  const CAT_C={'Product launch':{bg:'#D5C8FF',t:'#461068'},'Onboarding':{bg:'#C6E6FB',t:'#093B75'},'Retention':{bg:'#FAFFA4',t:'#705208'},'Bundle GTM':{bg:'#FFDFEA',t:'#7E0F4C'},'Adoption campaign':{bg:'#C8FFEC',t:'#0D5563'}};
   return(<div className="fade-in">
     <div style={{textAlign:'center',marginBottom:32,paddingTop:8}}><h2 style={{fontSize:24,fontWeight:800,marginBottom:6}}>Past campaigns library</h2><p style={{color:'var(--g500)',fontSize:15,maxWidth:520,margin:'0 auto'}}>Browse completed campaigns for inspiration. Clone any journey as a starting point for your next plan.</p></div>
     <Tip icon="🎯"><b>How to use:</b> Click <b>Preview</b> to see the full channel × stage matrix. Click <b>Clone as template</b> to copy it into your workspace — all touchpoints will be reset to "not started" with dates cleared, so you keep the structure while adapting to your timeline.</Tip>
@@ -691,22 +945,19 @@ function LibPreviewModal({journey,library,open,onClose,onClone}){
   if(!open||!journey)return null;
   const stages=library.stages.filter(s=>s.journey_id===journey.id).sort((a,b)=>a.position-b.position);
   const tps=library.touchpoints.filter(tp=>tp.journey_id===journey.id);
-  const usedCh=[...new Set(tps.map(tp=>tp.channel))];
-  return(<Modal open={open} onClose={onClose} title={journey.journey_name} width={960}>
-    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12}}>
+  // Use the full JourneyMapView inside the modal — same visual as the standalone cashback map
+  return(<Modal open={open} onClose={onClose} title={journey.journey_name} width={1400}>
+    <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:8}}>
       {journey.markets?.map(m=><Pill key={m} label={m} small bg="var(--g50)" color="var(--g600)"/>)}
-      {(Array.isArray(journey.goal_type)?journey.goal_type:[journey.goal_type]).filter(Boolean).map(g=><Pill key={g} label={g} bg="#E0E7FF" color="#3730A3" small/>)}
+      {(Array.isArray(journey.goal_type)?journey.goal_type:[journey.goal_type]).filter(Boolean).map(g=><Pill key={g} label={g} bg="#D5C8FF" color="#461068" small/>)}
       <Pill label={`${tps.length} touchpoints`} bg="var(--g50)" color="var(--g600)" small/>
+      <Pill label={`${stages.length} stages`} bg="var(--g50)" color="var(--g600)" small/>
     </div>
-    {journey.messaging_angle&&<div style={{fontSize:13,color:'var(--g500)',background:'var(--g25)',padding:'8px 12px',borderRadius:8,borderLeft:'3px solid var(--g300)',marginBottom:12}}><strong style={{color:'var(--bk)'}}>Messaging angle:</strong> {journey.messaging_angle}</div>}
-    <div style={{overflowX:'auto'}}>
-      <div style={{display:'grid',gridTemplateColumns:`130px repeat(${stages.length},minmax(150px,1fr))`,gap:1,background:'var(--g200)',borderRadius:10,overflow:'hidden',border:'1px solid var(--g200)'}}>
-        <div style={{background:'var(--g50)',padding:'8px 10px',fontSize:11,fontWeight:700,color:'var(--g500)',textTransform:'uppercase'}}>Channel</div>
-        {stages.map(s=><div key={s.id} style={{background:'var(--g50)',padding:'8px 10px',fontSize:11,fontWeight:700,color:'var(--g500)',textTransform:'uppercase'}}>{s.stage_name}</div>)}
-        {usedCh.map(ch=>{const cc=CH_COLORS[ch]||{d:'#8A8A8A'};return(<React.Fragment key={ch}><div style={{background:'white',padding:'8px 10px',display:'flex',alignItems:'flex-start',gap:5,fontSize:12,fontWeight:600}}><span style={{width:6,height:6,borderRadius:'50%',background:cc.d,marginTop:4,flexShrink:0}}/>{ch}</div>{stages.map(stage=>{const cellTPs=tps.filter(tp=>tp.stage_id===stage.id&&tp.channel===ch);return(<div key={`${ch}-${stage.id}`} style={{background:'white',padding:5,minHeight:40}}>{cellTPs.map(tp=><div key={tp.id} style={{fontSize:11,padding:'5px 8px',background:'var(--g25)',borderRadius:6,marginBottom:3,borderLeft:`2px solid ${cc.d}`,lineHeight:1.3}}>{tp.touchpoint_name}</div>)}</div>)})}</React.Fragment>)})}
-      </div>
+    <JourneyMapView journey={journey} stages={stages} touchpoints={tps} onClickTP={()=>{}} onUpdateTP={null}/>
+    <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16,paddingTop:14,borderTop:'1px solid var(--g100)'}}>
+      <button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)',fontWeight:600}}>Close</button>
+      <button onClick={()=>{onClone(journey);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Clone as template</button>
     </div>
-    <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:20,paddingTop:14,borderTop:'1px solid var(--g100)'}}><button onClick={onClose} style={{padding:'8px 20px',borderRadius:8,background:'var(--g50)',color:'var(--g600)',fontWeight:600}}>Close</button><button onClick={()=>{onClone(journey);onClose()}} style={{padding:'8px 20px',borderRadius:8,background:'var(--bk)',color:'white',fontWeight:600}}>Clone as template</button></div>
   </Modal>);
 }
 
@@ -743,7 +994,7 @@ function App(){
 
   const[activeJId,setActiveJId]=useState(data.journeys[0]?.id||null);
   const[page,setPage]=useState(data.journeys.length>0?'journey':'home');
-  const[view,setView]=useState('matrix');
+  const[view,setView]=useState('journey_map');
   const[filters,setFilters]=useState({channels:[],audiences:[],markets:[]});
   const[tpModal,setTpModal]=useState({open:false,tp:null});
   const[jModal,setJModal]=useState({open:false,journey:null});
@@ -808,7 +1059,7 @@ function App(){
     html2pdf().set(opt).from(el).save().then(()=>{if(btn)btn.textContent='Export PDF'}).catch(()=>{if(btn)btn.textContent='Export PDF'});
   };
 
-  const views=[{k:'matrix',l:'Journey map'},{k:'timeline',l:'Timeline'},{k:'gaps',l:'Gaps'}];
+  const views=[{k:'matrix',l:'Action plan'},{k:'journey_map',l:'Journey map'},{k:'timeline',l:'Timeline'},{k:'gaps',l:'Gaps'}];
 
   return(<div style={{minHeight:'100vh',background:'var(--g25)'}}>
     <div style={{borderBottom:'1px solid var(--g200)',padding:'10px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',background:'white',position:'sticky',top:0,zIndex:100}}>
@@ -824,9 +1075,10 @@ function App(){
       </div>
       <div style={{display:'flex',gap:6,alignItems:'center'}}>
         {page==='journey'&&activeJ&&<>
+          <button onClick={()=>setTpModal({open:true,tp:{touchpoint_name:'',stage_id:jStages[0]?.id||'',channel:'',touchpoint_type:'',owner:'',audience:[],market:activeJ?.markets||[],status:'not_started',validated:'tbd',go_live_date:'',team:[],market_override:false}})} style={{padding:'5px 12px',borderRadius:6,background:'var(--bk)',color:'white',fontSize:12,fontWeight:600}}>+ New touchpoint</button>
           <button onClick={exportPDF} style={{padding:'5px 12px',borderRadius:6,background:'var(--g50)',border:'1px solid var(--g200)',fontSize:12,fontWeight:600,color:'var(--g600)'}}>Export PDF</button>
           <button onClick={exportCSV} style={{padding:'5px 12px',borderRadius:6,background:'var(--g50)',border:'1px solid var(--g200)',fontSize:12,fontWeight:600,color:'var(--g600)'}}>Export CSV</button>
-          <button onClick={()=>deleteJ(activeJId)} style={{padding:'5px 12px',borderRadius:6,background:'#FEE2E2',border:'1px solid #FECACA',fontSize:12,fontWeight:600,color:'#991B1B'}}>Delete</button>
+          <button onClick={()=>deleteJ(activeJId)} style={{padding:'5px 12px',borderRadius:6,background:'#FFC9A6',border:'1px solid #FFB590',fontSize:12,fontWeight:600,color:'#7A250C'}}>Delete</button>
         </>}
       </div>
     </div>
@@ -839,6 +1091,7 @@ function App(){
         <div className="no-print" style={{display:'flex',gap:0,marginBottom:14,borderBottom:'2px solid var(--g100)'}}>{views.map(v=><button key={v.k} onClick={()=>setView(v.k)} style={{padding:'9px 18px',fontSize:13,fontWeight:600,background:'transparent',color:view===v.k?'var(--bk)':'var(--g500)',borderBottom:view===v.k?'2px solid var(--bk)':'2px solid transparent',marginBottom:-2}}>{v.l}</button>)}</div>
         <div className="no-print"><FiltersBar filters={filters} setFilters={setFilters} touchpoints={allTPs}/></div>
         {view==='matrix'&&<MatrixView stages={jStages} touchpoints={filteredTPs} onClickTP={tp=>setTpModal({open:true,tp})} onAddTP={openAddTP}/>}
+        {view==='journey_map'&&<JourneyMapView journey={activeJ} stages={jStages} touchpoints={filteredTPs} onClickTP={tp=>setTpModal({open:true,tp})} onUpdateTP={saveTP}/>}
         {view==='timeline'&&<TimelineView touchpoints={filteredTPs} stages={jStages} onClickTP={tp=>setTpModal({open:true,tp})}/>}
         {view==='gaps'&&<GapsView stages={jStages} touchpoints={allTPs}/>}
       </div>}
